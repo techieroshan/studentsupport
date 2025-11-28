@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
-import { Star, MessageSquare } from 'lucide-react';
+import { Star, MessageSquare, Share2 } from 'lucide-react';
 
 interface Props {
-  onSubmit: (stars: number, comment: string) => void;
+  onSubmit: (stars: number, comment: string, isPublic: boolean) => void;
   onCancel: () => void;
 }
 
 const RatingModal: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -31,7 +32,7 @@ const RatingModal: React.FC<Props> = ({ onSubmit, onCancel }) => {
           ))}
         </div>
         
-        <div className="mb-6">
+        <div className="mb-4">
            <label className="block text-xs font-bold text-slate-700 mb-2">Private Comment (Optional)</label>
            <textarea 
              value={comment}
@@ -42,10 +43,29 @@ const RatingModal: React.FC<Props> = ({ onSubmit, onCancel }) => {
            />
         </div>
 
+        {stars >= 4 && (
+            <div className="mb-6 bg-brand-50 p-3 rounded-lg border border-brand-100">
+                <label className="flex items-start cursor-pointer">
+                    <div className="relative flex items-center">
+                        <input 
+                            type="checkbox" 
+                            checked={isPublic}
+                            onChange={(e) => setIsPublic(e.target.checked)}
+                            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded mt-0.5" 
+                        />
+                    </div>
+                    <div className="ml-3 text-xs">
+                        <span className="font-bold text-brand-800">Share your story?</span>
+                        <p className="text-brand-600 mt-0.5">Feature this on our "Success Stories" wall to inspire others.</p>
+                    </div>
+                </label>
+            </div>
+        )}
+
         <div className="flex space-x-3">
           <button onClick={onCancel} className="flex-1 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg">Skip</button>
           <button 
-            onClick={() => onSubmit(stars, comment)}
+            onClick={() => onSubmit(stars, comment, isPublic)}
             disabled={stars === 0}
             className={`flex-1 py-2 text-white font-bold rounded-lg shadow-md ${stars === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700'}`}
           >

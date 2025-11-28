@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { DietaryPreference } from '../types';
 
@@ -22,7 +23,7 @@ export const analyzeMealDietaryTags = async (description: string): Promise<Dieta
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `Analyze this food description and identify all applicable dietary tags from this list: 
-      [Vegetarian, Vegan, Hindu Veg (No Egg), Jain Veg (No Root Veg), Halal, Kosher, Gluten Free, Nut Free].
+      [Vegetarian, Vegan, Hindu Veg (No Egg), Jain Veg (No Root Veg), Halal, Kosher, Gluten Free, Nut Free, No Oil].
       
       Description: "${description}"
       

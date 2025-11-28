@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { MealRequest, MealOffer, UserRole } from '../types';
-import { X, MapPin, User, Utensils, Calendar, Clock, ArrowRight, Repeat, Flag, CheckSquare, Truck, Languages, MessageSquare } from 'lucide-react';
+import { MealRequest, MealOffer, UserRole, VerificationStatus, DietaryPreference } from '../types';
+import { X, MapPin, User, Utensils, Calendar, Clock, ArrowRight, Repeat, Flag, Truck, Languages } from 'lucide-react';
+import VerificationBadge from './VerificationBadge';
 
 interface Props {
   item: MealRequest | MealOffer;
@@ -22,11 +23,24 @@ const AVATARS = [
   "https://picsum.photos/seed/art/200"
 ];
 
+const DIETARY_TOOLTIPS: Record<string, string> = {
+    [DietaryPreference.VEGETARIAN]: "No meat, poultry, or seafood.",
+    [DietaryPreference.VEGAN]: "No animal products (meat, dairy, eggs, honey).",
+    [DietaryPreference.HINDU_VEG]: "Strict vegetarian, no eggs.",
+    [DietaryPreference.JAIN_VEG]: "Vegetarian, no root vegetables (onion, garlic, potato, carrot).",
+    [DietaryPreference.HALAL]: "Prepared according to Islamic dietary laws.",
+    [DietaryPreference.KOSHER]: "Prepared according to Jewish dietary laws.",
+    [DietaryPreference.GLUTEN_FREE]: "No wheat, barley, rye, or triticale.",
+    [DietaryPreference.NUT_FREE]: "No peanuts or tree nuts.",
+    [DietaryPreference.NO_OIL]: "Prepared without added oils or fats."
+};
+
 const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, onFlag }) => {
   const isRequest = 'seekerId' in item;
   
   const avatarId = isRequest ? (item as MealRequest).seekerAvatarId : (item as MealOffer).donorAvatarId;
   const name = isRequest ? (item as MealRequest).seekerName : (item as MealOffer).donorName;
+  const verificationStatus = isRequest ? (item as MealRequest).seekerVerificationStatus : (item as MealOffer).donorVerificationStatus;
   const languages = isRequest ? (item as MealRequest).seekerLanguages : (item as MealOffer).donorLanguages;
   const availability = item.availability;
   const title = isRequest ? 'Student Request' : 'Meal Offer';
@@ -67,7 +81,7 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
     ? (item as MealRequest).dietaryNeeds 
     : (item as MealOffer).dietaryTags;
 
-  const medicalItems = isRequest ? (item as MealRequest).medicalNeeds : [];
+  const medicalItems = isRequest ? (item as MealRequest).medicalNeeds : (item as MealOffer).medicalTags;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
@@ -103,7 +117,15 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
                 className="w-16 h-16 rounded-full border-4 border-slate-50 shadow-sm object-cover bg-slate-200" 
               />
               <div className="ml-4 flex-1">
-                 <h4 className="text-xl font-bold text-slate-900">{name}</h4>
+                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                    <h4 className="text-xl font-bold text-slate-900">{name}</h4>
+                    <div className="flex items-center mt-1 sm:mt-0 space-x-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase border ${isRequest ? 'bg-brand-50 text-brand-700 border-brand-100' : 'bg-emerald-50 text-emerald-700 border-emerald-100'}`}>
+                            {isRequest ? 'Student' : 'Donor'}
+                        </span>
+                        <VerificationBadge status={verificationStatus} />
+                    </div>
+                 </div>
                  <div className="flex items-center text-slate-600 mt-1 text-sm font-medium">
                     <MapPin className="h-4 w-4 mr-1 text-brand-600" />
                     {item.city}, {item.state} {item.zip}
@@ -165,7 +187,11 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
                <h5 className="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Dietary Preferences</h5>
                <div className="flex flex-wrap gap-2">
                  {dietaryItems.map(tag => (
-                   <span key={tag} className="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-sm font-bold border border-brand-100">
+                   <span 
+                     key={tag} 
+                     title={DIETARY_TOOLTIPS[tag]}
+                     className="px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-sm font-bold border border-brand-100 cursor-help"
+                   >
                      {tag}
                    </span>
                  ))}

@@ -21,6 +21,7 @@ export enum DietaryPreference {
   KOSHER = 'Kosher',
   GLUTEN_FREE = 'Gluten Free',
   NUT_FREE = 'Nut Free',
+  NO_OIL = 'No Oil',
   NONE = 'No Restrictions'
 }
 
@@ -88,6 +89,7 @@ export interface User {
   avatarId: number;
   displayName: string; // Masked name
   email?: string; // Private
+  emailVerified?: boolean; 
   phone?: string; // Private
   address?: string; // Private Full Address
   city: string;
@@ -95,10 +97,20 @@ export interface User {
   zip: string;
   country: string;
   radius: number;
+  latitude?: number;
+  longitude?: number;
   verificationStatus: VerificationStatus;
+  verificationSteps?: {
+    emailCheck: boolean;
+    phoneCheck: boolean;
+    identityCheck: boolean;
+  };
   preferences?: DietaryPreference[];
   languages: string[]; // Spoken languages
   isAnonymous?: boolean;
+  weeklyMealLimit?: number;
+  currentWeeklyMeals?: number;
+  donorCategory?: DonorCategory; 
 }
 
 export interface MealRequest {
@@ -106,19 +118,23 @@ export interface MealRequest {
   seekerId: string;
   seekerName: string;
   seekerAvatarId: number;
+  seekerVerificationStatus: VerificationStatus;
   seekerLanguages: string[];
   city: string;
   state: string;
   zip: string;
   country: string;
+  latitude?: number;
+  longitude?: number;
   dietaryNeeds: DietaryPreference[];
   medicalNeeds: MedicalPreference[];
   logistics: FulfillmentOption[];
   description: string;
   availability: string; // "Weekends", "Evenings", etc.
   frequency: Frequency;
+  urgency: 'NORMAL' | 'URGENT'; 
   postedAt: number;
-  status: 'OPEN' | 'IN_PROGRESS' | 'FULFILLED';
+  status: 'OPEN' | 'IN_PROGRESS' | 'FULFILLED' | 'PAUSED' | 'EXPIRED' | 'FLAGGED';
   completionPin?: string; // 4-digit PIN for verification
 }
 
@@ -127,19 +143,24 @@ export interface MealOffer {
   donorId: string;
   donorName: string;
   donorAvatarId: number;
+  donorVerificationStatus: VerificationStatus;
   donorLanguages: string[];
   city: string;
   state: string;
   zip: string;
   country: string;
+  latitude?: number;
+  longitude?: number;
   description: string;
   imageUrl?: string;
   dietaryTags: DietaryPreference[];
+  medicalTags?: MedicalPreference[];
   availableUntil: number;
   logistics: FulfillmentOption[];
   availability: string; // "Weekends", "Evenings", etc.
   frequency: Frequency;
-  status: 'AVAILABLE' | 'IN_PROGRESS' | 'CLAIMED';
+  isAnonymous?: boolean; 
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'CLAIMED' | 'FLAGGED';
   completionPin?: string; // 4-digit PIN for verification
 }
 
@@ -170,6 +191,7 @@ export interface Rating {
   stars: number;
   comment: string;
   timestamp: number;
+  isPublic?: boolean;
 }
 
 export interface FlaggedContent {
@@ -179,4 +201,5 @@ export interface FlaggedContent {
   reason: string;
   flaggedBy: string;
   timestamp: number;
+  description: string;
 }
