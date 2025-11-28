@@ -1,0 +1,8 @@
+{
+  "name": "StudentSupport - New Abilities",
+  "description": "A community portal connecting students with local donors for free, home-cooked meals. Features verified identities, privacy masking, and dietary matching.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
