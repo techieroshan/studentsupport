@@ -1,147 +1,11 @@
 
 import React, { useState } from 'react';
 import { Donor, DonorCategory, DonorTier } from '../types';
-import { Heart, Globe, Building2, User, GraduationCap, ShieldCheck, ExternalLink, Repeat } from 'lucide-react';
+import { Heart, User, Repeat } from 'lucide-react';
 
-const SEED_DONORS: Donor[] = [
-  // Platinum (Gov, Religious, Non-Profits)
-  {
-    id: 'd1',
-    name: 'Zakat Foundation of America',
-    category: DonorCategory.NON_PROFIT,
-    tier: DonorTier.PLATINUM,
-    logoUrl: 'https://via.placeholder.com/150?text=Zakat+Foundation',
-    totalContributionDisplay: '$15,000+',
-    isAnonymous: false,
-    location: 'Chicago, IL',
-    since: '2023',
-    quote: 'Feeding students is a core part of our domestic hunger relief mandate.'
-  },
-  {
-    id: 'd2',
-    name: 'Sri Venkateswara Temple',
-    category: DonorCategory.RELIGIOUS,
-    tier: DonorTier.PLATINUM,
-    logoUrl: 'https://via.placeholder.com/150?text=SVT+Cary',
-    totalContributionDisplay: '12,500 Meals',
-    isAnonymous: false,
-    location: 'Cary, NC',
-    since: '2024',
-    isRecurring: true
-  },
-  {
-    id: 'd3',
-    name: 'City of Fremont',
-    category: DonorCategory.GOVERNMENT,
-    tier: DonorTier.PLATINUM,
-    logoUrl: 'https://via.placeholder.com/150?text=City+Fremont',
-    totalContributionDisplay: '$250,000 Grant',
-    isAnonymous: false,
-    location: 'Fremont, CA',
-    since: '2025',
-    quote: 'Supporting youth food security through the Community Development Block Grant.'
-  },
-  {
-    id: 'd4',
-    name: 'Dr. Anand Patel',
-    category: DonorCategory.INDIVIDUAL,
-    tier: DonorTier.PLATINUM,
-    totalContributionDisplay: '$25,000',
-    isAnonymous: false,
-    location: 'Bay Area, CA',
-    since: '2024'
-  },
-  {
-    id: 'd5',
-    name: 'Anonymous',
-    anonymousName: 'A Caring Sikh Family from Toronto',
-    category: DonorCategory.INDIVIDUAL,
-    tier: DonorTier.PLATINUM,
-    totalContributionDisplay: '18,000 Meals',
-    isAnonymous: true,
-    location: 'Toronto, ON',
-    since: '2023',
-    isRecurring: true
-  },
-  {
-    id: 'd6',
-    name: 'Sri Lakshmi Temple',
-    category: DonorCategory.RELIGIOUS,
-    tier: DonorTier.PLATINUM,
-    totalContributionDisplay: '₹15,00,000',
-    isAnonymous: false,
-    location: 'Singapore',
-    since: '2025'
-  },
-
-  // Gold
-  {
-    id: 'd7',
-    name: 'City of Austin - Sustainability',
-    category: DonorCategory.GOVERNMENT,
-    tier: DonorTier.GOLD,
-    totalContributionDisplay: '7,200 Meals',
-    isAnonymous: false,
-    location: 'Austin, TX',
-    since: '2024'
-  },
-  {
-    id: 'd8',
-    name: 'Sikh Gurudwara of Triangle',
-    category: DonorCategory.RELIGIOUS,
-    tier: DonorTier.GOLD,
-    totalContributionDisplay: '6,800 Meals',
-    isAnonymous: false,
-    location: 'Durham, NC',
-    since: '2023',
-    isRecurring: true
-  },
-  {
-    id: 'd9',
-    name: 'Tata Consultancy Services',
-    category: DonorCategory.BUSINESS,
-    tier: DonorTier.GOLD,
-    totalContributionDisplay: '$10,000 CSR Grant',
-    isAnonymous: false,
-    location: 'Mumbai / Global',
-    since: '2024'
-  },
-
-  // Silver
-  {
-    id: 'd10',
-    name: 'Patel Family Foundation',
-    category: DonorCategory.FAMILY_OFFICE,
-    tier: DonorTier.SILVER,
-    totalContributionDisplay: '$75,000 Annual',
-    isAnonymous: false,
-    location: 'New Jersey',
-    since: '2022',
-    isRecurring: true
-  },
-  {
-    id: 'd11',
-    name: 'IIT Bombay Class of 1999',
-    category: DonorCategory.UNIVERSITY,
-    tier: DonorTier.SILVER,
-    totalContributionDisplay: '$5,000',
-    isAnonymous: false,
-    location: 'Global Alumni',
-    since: '2025'
-  },
-  
-  // Bronze / Community
-  {
-    id: 'd12',
-    name: 'Mom & Pop Diner',
-    category: DonorCategory.BUSINESS,
-    tier: DonorTier.BRONZE,
-    totalContributionDisplay: '500 Meals',
-    isAnonymous: false,
-    location: 'Houston, TX',
-    since: '2024'
-  }
-];
+interface Props {
+  items: Donor[];
+}
 
 const TIER_CONFIG: Record<DonorTier, { color: string, badge: string, height: string }> = {
   [DonorTier.PLATINUM]: { color: 'bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 border-slate-300', badge: 'text-slate-800', height: 'h-48' },
@@ -151,16 +15,13 @@ const TIER_CONFIG: Record<DonorTier, { color: string, badge: string, height: str
   [DonorTier.COMMUNITY]: { color: 'bg-white border-slate-50', badge: 'text-slate-500', height: 'h-24' },
 };
 
-const DonorsPage: React.FC = () => {
+const DonorsPage: React.FC<Props> = ({ items }) => {
   const [activeTab, setActiveTab] = useState<DonorCategory | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'AMOUNT' | 'DATE'>('AMOUNT');
 
   // Filter & Sort
-  const filteredDonors = SEED_DONORS.filter(d => activeTab === 'ALL' || d.category === activeTab);
+  const filteredDonors = items.filter(d => activeTab === 'ALL' || d.category === activeTab);
   
-  // Note: Sorting logic is purely visual for this demo as amounts are strings. 
-  // In a real app, use the numeric amount_cents field.
-
   const categories = Object.values(DonorCategory);
 
   return (
@@ -302,7 +163,7 @@ const DonorsPage: React.FC = () => {
                   <a href="https://newabilities.org/donate" target="_blank" rel="noreferrer" className="px-8 py-3 bg-white text-brand-700 font-bold rounded-lg shadow hover:bg-slate-100 transition">
                      Donate Online
                   </a>
-                  <a href="mailto:partners@newabilities.org" className="px-8 py-3 bg-brand-700 text-white font-bold rounded-lg border border-brand-500 hover:bg-brand-800 transition">
+                  <a href="https://newabilities.org/contact" target="_blank" rel="noreferrer" className="px-8 py-3 bg-brand-700 text-white font-bold rounded-lg border border-brand-500 hover:bg-brand-800 transition">
                      Contact for Grants
                   </a>
                </div>

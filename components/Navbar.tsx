@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Heart, User as UserIcon, LogOut, Menu, Map, MapPin } from 'lucide-react';
+import { Heart, User as UserIcon, LogOut, Menu, Map, MapPin, Info } from 'lucide-react';
 import { User, UserRole } from '../types';
 
 interface Props {
@@ -35,11 +35,11 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-             <a href="https://newabilities.org" target="_blank" rel="noreferrer" className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1">
-                Foundation Home
-             </a>
+             <button onClick={() => onNavigate('how-it-works')} className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1">
+                How It Works
+             </button>
              <button onClick={() => onNavigate('donors')} className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1">
-                Donors & Partners
+                Donors
              </button>
              <button onClick={() => onNavigate('browse')} className="text-sm font-bold text-slate-600 hover:text-brand-700 flex items-center focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1">
                 <Map className="h-4 w-4 mr-1"/> Browse
@@ -100,12 +100,17 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-4 shadow-lg">
-          <a href="https://newabilities.org" className="block text-sm font-bold text-slate-700 py-2">Foundation Home</a>
+           <button 
+                onClick={() => { onNavigate('how-it-works'); setIsMenuOpen(false); }}
+                className="w-full text-left px-4 py-3 rounded-lg text-slate-700 font-bold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                How It Works
+              </button>
            <button 
                 onClick={() => { onNavigate('donors'); setIsMenuOpen(false); }}
                 className="w-full text-left px-4 py-3 rounded-lg text-slate-700 font-bold hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                Donors & Partners
+                Donors
               </button>
            <button 
                 onClick={() => { onNavigate('browse'); setIsMenuOpen(false); }}

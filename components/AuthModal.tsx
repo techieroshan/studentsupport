@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { ShieldCheck, ScanFace, CheckCircle2, Loader2, FileCheck, MapPin, User, Mail, Phone, Ruler, Globe, Home, LogIn } from 'lucide-react';
+import { ShieldCheck, ScanFace, CheckCircle2, Loader2, FileCheck, MapPin, User, Mail, Phone, Globe, Home, KeyRound, Languages, ArrowLeft } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface OnboardingData {
   email: string;
-  password?: string; // Mock password
+  password?: string;
   phone: string;
   address: string;
   city: string;
@@ -15,6 +15,7 @@ interface OnboardingData {
   radius: number;
   avatarId: number;
   displayName: string;
+  languages: string[];
 }
 
 interface Props {
@@ -36,13 +37,15 @@ const AVATARS = [
 ];
 
 const COUNTRIES = ["United States", "Canada", "United Kingdom", "India", "Australia", "Germany", "France", "Other"];
+const LANGUAGES_LIST = ["English", "Spanish", "Mandarin", "Hindi", "Gujarati", "Punjabi", "Marathi", "French", "Arabic", "Bengali", "Portuguese", "Russian", "Urdu", "Telugu", "Tamil", "Other"];
 
 const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCancel }) => {
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>(initialMode);
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER' | 'FORGOT_PASSWORD'>(initialMode);
   const [verificationStep, setVerificationStep] = useState(0);
   const [processing, setProcessing] = useState(false);
   
-  // Form State
+  const [resetSent, setResetSent] = useState(false);
+  
   const [formData, setFormData] = useState<OnboardingData>({
     email: '',
     password: '',
@@ -54,7 +57,8 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
     country: 'United States',
     radius: 20,
     avatarId: 0,
-    displayName: targetRole === UserRole.SEEKER ? 'Anonymous Student' : 'Kind Neighbor'
+    displayName: targetRole === UserRole.SEEKER ? 'Anonymous Student' : 'Kind Neighbor',
+    languages: ['English']
   });
   const [errors, setErrors] = useState<Partial<Record<keyof OnboardingData, string>>>({});
 
@@ -78,6 +82,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
     if (!formData.city) newErrors.city = 'City is required';
     if (!formData.state) newErrors.state = 'State is required';
     if (!formData.zip) newErrors.zip = 'Zip is required';
+    if (formData.languages.length === 0) newErrors.languages = 'Select at least one language';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -87,7 +92,6 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
     if (!validateRegister()) return;
     setProcessing(true);
     
-    // Simulate verification steps
     let current = 0;
     const interval = setInterval(() => {
       current++;
@@ -107,9 +111,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
       return;
     }
     setProcessing(true);
-    // Simulate login network request
     setTimeout(() => {
-      // Mock data refill for login
       const mockData = {
         ...formData,
         displayName: formData.email.includes('admin') ? 'System Admin' : (targetRole === UserRole.SEEKER ? 'Returning Student' : 'Returning Donor'),
@@ -117,14 +119,35 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         state: 'CA',
         zip: '95112',
         country: 'United States',
-        address: '123 Login Lane'
+        address: '123 Login Lane',
+        languages: ['English', 'Gujarati']
       };
       onComplete(mockData, true);
     }, 1500);
   };
 
+  const handleForgotPassword = () => {
+     if (!formData.email) {
+         setErrors({ email: 'Please enter your email to reset password' });
+         return;
+     }
+     setProcessing(true);
+     setTimeout(() => {
+         setProcessing(false);
+         setResetSent(true);
+     }, 1500);
+  };
+
+  const toggleLanguage = (lang: string) => {
+    if (formData.languages.includes(lang)) {
+        setFormData({ ...formData, languages: formData.languages.filter(l => l !== lang) });
+    } else {
+        setFormData({ ...formData, languages: [...formData.languages, lang] });
+    }
+  };
+
   const renderRegisterForm = () => (
-    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
       <div className="space-y-4">
         <label className="block text-sm font-bold text-slate-700">Choose your Avatar (Masked Identity)</label>
         <div className="flex gap-3 overflow-x-auto pb-2">
@@ -249,6 +272,24 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
       </div>
       
       <div>
+         <label className="block text-xs font-bold text-slate-700 mb-2 uppercase flex items-center">
+            <Languages className="h-4 w-4 mr-1 text-slate-500" /> Languages Spoken (Select all that apply)
+         </label>
+         <div className="flex flex-wrap gap-2">
+            {LANGUAGES_LIST.map(lang => (
+                <button
+                   key={lang}
+                   onClick={() => toggleLanguage(lang)}
+                   className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${formData.languages.includes(lang) ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-300 hover:border-brand-400'}`}
+                >
+                    {lang}
+                </button>
+            ))}
+         </div>
+         {errors.languages && <p className="text-xs text-red-600 mt-1">{errors.languages}</p>}
+      </div>
+      
+      <div>
          <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Display Name (Visible Publicly)</label>
          <div className="relative">
             <User className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
@@ -290,40 +331,90 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         />
       </div>
       <div className="text-right">
-        <a href="#" className="text-xs text-brand-600 hover:text-brand-800 font-medium">Forgot Password?</a>
+        <button 
+            onClick={() => { setErrors({}); setAuthMode('FORGOT_PASSWORD'); }}
+            className="text-xs text-brand-600 hover:text-brand-800 font-medium hover:underline focus:outline-none"
+        >
+            Forgot Password?
+        </button>
       </div>
     </div>
+  );
+
+  const renderForgotPassword = () => (
+     <div className="space-y-6 py-8">
+        {!resetSent ? (
+            <>
+                <p className="text-sm text-slate-600 text-center">Enter your email address and we'll send you a link to reset your password.</p>
+                <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Email Address</label>
+                    <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
+                    <input 
+                        type="email" 
+                        value={formData.email}
+                        onChange={e => setFormData({...formData, email: e.target.value})}
+                        className={`w-full bg-white pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.email ? 'border-red-600' : 'border-slate-400'}`}
+                        placeholder="you@example.com"
+                    />
+                    </div>
+                    {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+                </div>
+                <button onClick={handleForgotPassword} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition shadow-lg">
+                    Send Reset Link
+                </button>
+                <div className="text-center">
+                    <button onClick={() => { setErrors({}); setAuthMode('LOGIN'); }} className="text-slate-500 text-sm font-bold mt-4 hover:text-slate-700 flex items-center justify-center mx-auto">
+                        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Login
+                    </button>
+                </div>
+            </>
+        ) : (
+            <div className="text-center animate-in fade-in zoom-in duration-300">
+                <div className="mx-auto bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">Check your inbox</h3>
+                <p className="text-slate-600 text-sm mb-6">We've sent a password reset link to <span className="font-bold">{formData.email}</span>.</p>
+                <button onClick={() => { setResetSent(false); setAuthMode('LOGIN'); }} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition">
+                    Return to Login
+                </button>
+            </div>
+        )}
+     </div>
   );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 relative overflow-hidden flex flex-col max-h-[90vh]">
         
-        {/* Header with Tabs */}
+        {/* Header */}
         <div className="mb-6">
            <div className="flex items-center justify-center mb-4">
               <div className="bg-brand-100 p-2 rounded-full">
-                <ShieldCheck className="h-6 w-6 text-brand-700" />
+                {authMode === 'FORGOT_PASSWORD' ? <KeyRound className="h-6 w-6 text-brand-700" /> : <ShieldCheck className="h-6 w-6 text-brand-700" />}
               </div>
            </div>
            
-           <div className="flex border-b border-slate-200 mb-4">
-              <button 
-                onClick={() => setAuthMode('LOGIN')}
-                className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'LOGIN' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Log In
-              </button>
-              <button 
-                onClick={() => setAuthMode('REGISTER')}
-                className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'REGISTER' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Join (Verification)
-              </button>
-           </div>
+           {authMode !== 'FORGOT_PASSWORD' && (
+            <div className="flex border-b border-slate-200 mb-4">
+                <button 
+                    onClick={() => { setErrors({}); setAuthMode('LOGIN'); }}
+                    className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'LOGIN' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    Log In
+                </button>
+                <button 
+                    onClick={() => { setErrors({}); setAuthMode('REGISTER'); }}
+                    className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'REGISTER' ? 'text-brand-600 border-b-2 border-brand-600' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    Join (Verification)
+                </button>
+            </div>
+           )}
            
            <h2 className="text-xl font-bold text-center text-slate-900">
-             {authMode === 'LOGIN' ? 'Welcome Back' : 'Secure Verification'}
+             {authMode === 'LOGIN' ? 'Welcome Back' : authMode === 'REGISTER' ? 'Secure Verification' : 'Reset Password'}
            </h2>
         </div>
 
@@ -353,12 +444,14 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
              </>
           )}
 
+          {!processing && authMode === 'FORGOT_PASSWORD' && renderForgotPassword()}
+
           {processing && (
-            <div className="py-12 flex flex-col items-center justify-center space-y-6">
-                {authMode === 'LOGIN' ? (
+            <div className="py-12 flex flex-col items-center justify-center space-y-6 animate-in fade-in zoom-in duration-300">
+                {authMode === 'LOGIN' || authMode === 'FORGOT_PASSWORD' ? (
                    <>
                      <Loader2 className="h-10 w-10 text-brand-600 animate-spin" />
-                     <p className="text-slate-600 font-medium">Authenticating...</p>
+                     <p className="text-slate-600 font-medium">Processing...</p>
                    </>
                 ) : (
                    <div className="w-full space-y-6">

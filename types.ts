@@ -33,9 +33,11 @@ export enum MedicalPreference {
   NONE = 'None'
 }
 
-export enum DeliveryMethod {
-  PICKUP = 'Pickup',
-  DELIVERY = 'Delivery'
+export enum FulfillmentOption {
+  PICKUP = 'Pickup (Student travels)',
+  DELIVERY = 'Delivery (Donor drops off)',
+  DINE_IN = 'Dine-in (Hosted by Donor)',
+  MEET_UP = 'Meet Up (Public Spot)'
 }
 
 export enum Frequency {
@@ -95,6 +97,7 @@ export interface User {
   radius: number;
   verificationStatus: VerificationStatus;
   preferences?: DietaryPreference[];
+  languages: string[]; // Spoken languages
   isAnonymous?: boolean;
 }
 
@@ -103,16 +106,20 @@ export interface MealRequest {
   seekerId: string;
   seekerName: string;
   seekerAvatarId: number;
+  seekerLanguages: string[];
   city: string;
   state: string;
   zip: string;
   country: string;
   dietaryNeeds: DietaryPreference[];
   medicalNeeds: MedicalPreference[];
+  logistics: FulfillmentOption[];
   description: string;
+  availability: string; // "Weekends", "Evenings", etc.
   frequency: Frequency;
   postedAt: number;
-  status: 'OPEN' | 'FULFILLED';
+  status: 'OPEN' | 'IN_PROGRESS' | 'FULFILLED';
+  completionPin?: string; // 4-digit PIN for verification
 }
 
 export interface MealOffer {
@@ -120,6 +127,7 @@ export interface MealOffer {
   donorId: string;
   donorName: string;
   donorAvatarId: number;
+  donorLanguages: string[];
   city: string;
   state: string;
   zip: string;
@@ -128,9 +136,11 @@ export interface MealOffer {
   imageUrl?: string;
   dietaryTags: DietaryPreference[];
   availableUntil: number;
-  deliveryMethod: DeliveryMethod;
+  logistics: FulfillmentOption[];
+  availability: string; // "Weekends", "Evenings", etc.
   frequency: Frequency;
-  status: 'AVAILABLE' | 'CLAIMED';
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'CLAIMED';
+  completionPin?: string; // 4-digit PIN for verification
 }
 
 export interface Message {
@@ -151,7 +161,11 @@ export interface StatsData {
 export interface Rating {
   id: string;
   fromUserId: string;
-  toUserId: string;
+  reviewerName: string;
+  reviewerAvatarId: number;
+  reviewerRole: UserRole;
+  reviewerLocation: string;
+  toUserId: string; // 'system' or specific user
   transactionId: string;
   stars: number;
   comment: string;

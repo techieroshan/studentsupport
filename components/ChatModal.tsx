@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, X, Shield, Lock, User, Info } from 'lucide-react';
-import { Message, User as UserType } from '../types';
+import { Send, X, Shield, Lock, User, Info, Flag, CheckCircle2, KeyRound } from 'lucide-react';
+import { Message, User as UserType, UserRole } from '../types';
 
 interface Props {
   recipientName: string;
@@ -9,9 +9,21 @@ interface Props {
   itemName: string;
   currentUser: UserType;
   onClose: () => void;
+  onFlag: () => void;
+  onAcceptMatch: () => void;
+  onVerifyPin: (pin: string) => void;
+  isOwner?: boolean;
+  status: 'OPEN' | 'IN_PROGRESS' | 'FULFILLED' | 'CLAIMED' | 'AVAILABLE';
+  completionPin?: string;
+  userRole: UserRole;
+  itemType: 'REQUEST' | 'OFFER';
 }
 
-const ChatModal: React.FC<Props> = ({ recipientName, recipientAvatarId, itemName, currentUser, onClose }) => {
+const ChatModal: React.FC<Props> = ({ 
+    recipientName, recipientAvatarId, itemName, currentUser, 
+    onClose, onFlag, onAcceptMatch, onVerifyPin, 
+    isOwner, status, completionPin, userRole, itemType 
+}) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'sys-1',
@@ -29,6 +41,7 @@ const ChatModal: React.FC<Props> = ({ recipientName, recipientAvatarId, itemName
     }
   ]);
   const [inputValue, setInputValue] = useState('');
+  const [pinInput, setPinInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -75,9 +88,14 @@ const ChatModal: React.FC<Props> = ({ recipientName, recipientAvatarId, itemName
     "https://picsum.photos/seed/art/200"
   ];
 
+  // Logic to determine if user needs to GIVE or RECEIVE the PIN
+  // Student (Seeker) -> Recipient -> GIVES PIN (Has PIN)
+  // Donor -> Provider -> ENTERS PIN
+  const isRecipient = userRole === UserRole.SEEKER; // Students always receive food
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[600px] animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[650px] animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
         <div className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md z-10">
@@ -94,13 +112,67 @@ const ChatModal: React.FC<Props> = ({ recipientName, recipientAvatarId, itemName
               <h3 className="font-bold text-sm flex items-center">
                 {recipientName} <Lock className="h-3 w-3 ml-1.5 text-slate-400" />
               </h3>
-              <p className="text-xs text-slate-400 truncate max-w-[150px]">{itemName}</p>
+              <p className="text-xs text-slate-400 truncate max-w-[150px]">{status === 'IN_PROGRESS' ? '• In Progress' : '• Connecting...'}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition">
-            <X className="h-5 w-5 text-slate-400" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button onClick={onFlag} className="p-2 hover:bg-slate-800 rounded-full transition text-slate-400 hover:text-red-400" title="Flag Transaction">
+                <Flag className="h-5 w-5" />
+            </button>
+            <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition">
+                <X className="h-5 w-5 text-slate-400" />
+            </button>
+          </div>
         </div>
+        
+        {/* Actions Bar: Acceptance Phase */}
+        {status !== 'IN_PROGRESS' && isOwner && (
+            <div className="bg-brand-50 border-b border-brand-100 p-3 flex justify-between items-center">
+                <p className="text-xs text-brand-800 font-bold">Details agreed upon?</p>
+                <button 
+                    onClick={onAcceptMatch}
+                    className="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center shadow-sm"
+                >
+                    <CheckCircle2 className="h-3 w-3 mr-1" /> Accept Match
+                </button>
+            </div>
+        )}
+
+        {/* PIN Verification Phase */}
+        {status === 'IN_PROGRESS' && (
+            <div className="bg-emerald-50 border-b border-emerald-100 p-4">
+                {isRecipient ? (
+                    <div className="text-center">
+                        <p className="text-xs font-bold text-emerald-800 uppercase mb-1">Digital Handshake</p>
+                        <p className="text-xs text-emerald-600 mb-2">Share this PIN with {recipientName} upon receipt of meal:</p>
+                        <div className="text-3xl font-mono font-bold tracking-widest text-emerald-900 bg-white border-2 border-emerald-200 rounded-lg py-2 w-32 mx-auto">
+                            {completionPin || '....'}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="text-center">
+                        <p className="text-xs font-bold text-emerald-800 uppercase mb-2">Verify Delivery</p>
+                        <p className="text-xs text-emerald-600 mb-2">Ask {recipientName} for the PIN when you hand over the meal:</p>
+                        <div className="flex justify-center space-x-2 mb-2">
+                            <input 
+                                type="text" 
+                                value={pinInput}
+                                onChange={(e) => setPinInput(e.target.value.replace(/\D/g,'').slice(0,4))}
+                                placeholder="0000"
+                                className="w-24 text-center text-xl font-mono font-bold py-1 rounded border-2 border-emerald-300 focus:border-emerald-500 outline-none"
+                            />
+                            <button 
+                                onClick={() => onVerifyPin(pinInput)}
+                                disabled={pinInput.length !== 4}
+                                className="bg-emerald-600 text-white px-3 py-1 rounded font-bold text-sm hover:bg-emerald-700 disabled:opacity-50"
+                            >
+                                Verify
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-4">
