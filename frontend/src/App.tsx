@@ -1210,10 +1210,7 @@ function App() {
     <div className="bg-white">
       {/* ... (Hero section same as before) ... */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-            <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-600 to-blue-600 opacity-90 mix-blend-multiply"></div>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 animate-in slide-in-from-bottom-4 duration-700 drop-shadow-sm">
             Share a Meal, <span className="text-brand-200">Fuel a Future.</span>
