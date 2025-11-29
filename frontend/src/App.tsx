@@ -1237,7 +1237,7 @@ function App() {
               aria-label="Donor Login - Help students"
               data-testid="donor-login-btn"
             >
-              I Want to Donate
+              I Want to Help
             </button>
           </div>
           <div className="mt-12 flex justify-center space-x-8 text-white/90 animate-in fade-in duration-1000 delay-500">
