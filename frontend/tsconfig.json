@@ -15,7 +15,10 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "paths": {
+      "*": ["*", "*.tsx", "*.ts"]
+    }
   },
   "include": ["src"]
 }
