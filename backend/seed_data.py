@@ -55,7 +55,7 @@ SEED_DONORS = [
     {
         "id": "d5",
         "name": "Anonymous",
-        "anonymousName": "A Caring Sikh Family from Toronto",
+        "anonymous_name": "A Caring Sikh Family from Toronto",
         "category": DonorCategory.INDIVIDUAL,
         "tier": DonorTier.PLATINUM,
         "total_contribution_display": "18,000 Meals",
