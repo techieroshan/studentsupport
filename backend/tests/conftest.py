@@ -41,28 +41,33 @@ def event_loop() -> Generator:
     loop.close()
 
 
-@pytest.fixture(scope="function", autouse=False)
-async def test_db() -> AsyncGenerator[AsyncSession, None]:
-    """Create a fresh database for each test."""
-    # Create all tables
+@pytest.fixture(scope="session", autouse=True)
+async def setup_test_database():
+    """Setup test database once for all tests."""
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     
-    # Create session
-    async with test_session_maker() as session:
-        try:
-            yield session
-            await session.commit()
-        except Exception:
-            await session.rollback()
-            raise
-        finally:
-            await session.close()
+    yield
     
-    # Drop all tables after test
+    # Cleanup after all tests
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+
+@pytest.fixture(scope="function")
+async def test_db(setup_test_database) -> AsyncGenerator[AsyncSession, None]:
+    """Create a fresh session for each test and clean data."""
+    connection = await test_engine.connect()
+    transaction = await connection.begin()
+    
+    session = AsyncSession(bind=connection, expire_on_commit=False)
+    
+    yield session
+    
+    await session.close()
+    await transaction.rollback()
+    await connection.close()
 
 
 @pytest.fixture(scope="function")
