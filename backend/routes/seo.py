@@ -216,7 +216,7 @@ Returns: Platform statistics including total meals served, active students, acti
 ### Donors
 GET /api/donors
 Returns: List of verified donor organizations and partners.
-Query Parameters: ?category={category}
+Query Parameters: ?category=GOVERNMENT|RELIGIOUS|NON_PROFIT|etc
 
 ### Public Offers (when available)
 GET /api/offers
