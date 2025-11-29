@@ -1048,7 +1048,7 @@ function App() {
                                          <>
                                             {item.status === 'OPEN' && (
                                                 <button onClick={(e) => handlePauseRequest(item.id, e)} className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50 flex items-center justify-center">
-                                                    {item.status === 'PAUSED' ? <PlayCircle className="h-3 w-3" /> : <PauseCircle className="h-3 w-3" />}
+                                                    {(item.status === 'PAUSED') ? <PlayCircle className="h-3 w-3" /> : <PauseCircle className="h-3 w-3" />}
                                                 </button>
                                             )}
                                             {item.status === 'IN_PROGRESS' && (
