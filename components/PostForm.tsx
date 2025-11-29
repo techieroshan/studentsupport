@@ -132,7 +132,7 @@ const PostForm: React.FC<Props> = ({ type, onCancel, onSubmit }) => {
                           <button
                             key={opt}
                             onClick={() => toggleLogistic(opt)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border text-left flex items-center transition ${selectedLogistics.includes(opt) ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200'}`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border text-left flex items-center transition ${selectedLogistics.includes(opt) ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-white text-slate-600 border-slate-200'}`}
                           >
                               <Truck className="h-3 w-3 mr-2" />
                               {opt}

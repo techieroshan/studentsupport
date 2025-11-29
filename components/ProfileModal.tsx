@@ -112,12 +112,69 @@ const ProfileModal: React.FC<Props> = ({ currentUser, onUpdate, onCancel, pastDo
     }, 800);
   };
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !loading) {
+        onCancel();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onCancel, loading]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal || loading) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, [loading]);
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div 
+      ref={modalRef}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
+      role="dialog" 
+      aria-modal="true"
+      aria-labelledby="profile-modal-title"
+    >
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
         <div className="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
-            <h3 className="font-bold flex items-center text-lg">
-                <UserIcon className="h-5 w-5 mr-2 text-brand-400" /> My Profile
+            <h3 id="profile-modal-title" className="font-bold flex items-center text-lg">
+                <UserIcon className="h-5 w-5 mr-2 text-brand-400" aria-hidden="true" /> My Profile
             </h3>
             <button onClick={onCancel} className="p-1 hover:bg-slate-700 rounded-full transition">
                 <X className="h-5 w-5" />
@@ -152,15 +209,15 @@ const ProfileModal: React.FC<Props> = ({ currentUser, onUpdate, onCancel, pastDo
                 </h4>
                 <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center text-slate-700"><Mail className="h-3 w-3 mr-2 text-slate-400"/> Email Verified</span>
+                        <span className="flex items-center text-slate-700"><Mail className="h-3 w-3 mr-2 text-slate-600"/> Email Verified</span>
                         {currentUser.emailVerified ? <Check className="h-4 w-4 text-green-600" /> : <span className="text-xs text-amber-600 font-bold">Pending</span>}
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center text-slate-700"><Phone className="h-3 w-3 mr-2 text-slate-400"/> Phone Verified</span>
+                        <span className="flex items-center text-slate-700"><Phone className="h-3 w-3 mr-2 text-slate-600"/> Phone Verified</span>
                         <Check className="h-4 w-4 text-green-600" />
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                        <span className="flex items-center text-slate-700"><ScanFace className="h-3 w-3 mr-2 text-slate-400"/> Identity Check</span>
+                        <span className="flex items-center text-slate-700"><ScanFace className="h-3 w-3 mr-2 text-slate-600"/> Identity Check</span>
                         {currentUser.verificationStatus === VerificationStatus.VERIFIED ? <Check className="h-4 w-4 text-green-600" /> : <span className="text-xs text-amber-600 font-bold">Pending</span>}
                     </div>
                 </div>
@@ -186,7 +243,7 @@ const ProfileModal: React.FC<Props> = ({ currentUser, onUpdate, onCancel, pastDo
                         </div>
                         <div className="w-full bg-emerald-200 rounded-full h-2">
                             <div 
-                                className="bg-emerald-600 h-2 rounded-full transition-all duration-500" 
+                                className="bg-emerald-700 h-2 rounded-full transition-all duration-500" 
                                 style={{ width: `${Math.min(((currentUser.currentWeeklyMeals || 0) / (formData.weeklyMealLimit || 1)) * 100, 100)}%` }}
                             ></div>
                         </div>

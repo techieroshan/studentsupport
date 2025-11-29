@@ -100,7 +100,7 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
                 
                 <button 
                   onClick={onLogout}
-                  className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="p-2 text-slate-600 hover:text-slate-700 rounded-full hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
                   aria-label="Logout"
                   title="Logout"
                 >

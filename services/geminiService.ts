@@ -59,7 +59,7 @@ export const generateEncouragement = async (name: string): Promise<string> => {
       model: "gemini-2.5-flash",
       contents: `Write a very short (max 20 words), warm, encouraging message for a student named ${name} who is studying hard away from home. Do not use hashtags.`,
     });
-    return response.text.trim();
+    return response.text?.trim() || "You've got this!";
   } catch (error) {
     return "You've got this!";
   }

@@ -37,14 +37,14 @@ const SuccessStories: React.FC<Props> = ({ reviews }) => {
 
         {displayReviews.length === 0 ? (
           <div className="text-center py-12 bg-slate-50 rounded-xl">
-            <MessageSquare className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+            <MessageSquare className="h-12 w-12 text-slate-600 mx-auto mb-3" />
             <p className="text-slate-500">No reviews yet. Be the first to share your experience!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {displayReviews.map((review) => (
               <div key={review.id} className="relative bg-slate-50 p-8 rounded-2xl shadow-sm hover:shadow-md transition border border-slate-100 flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <Quote className="absolute top-6 left-6 h-8 w-8 text-brand-200 opacity-50" />
+                <Quote className="absolute top-6 left-6 h-8 w-8 text-brand-400 opacity-40" />
                 
                 <div className="relative z-10 flex-grow">
                   <div className="flex items-center mb-6">
@@ -63,7 +63,7 @@ const SuccessStories: React.FC<Props> = ({ reviews }) => {
                     {[...Array(5)].map((_, i) => (
                       <Star 
                         key={i} 
-                        className={`h-4 w-4 ${i < review.stars ? 'fill-current' : 'text-slate-300'}`} 
+                        className={`h-4 w-4 ${i < review.stars ? 'fill-current' : 'text-slate-500'}`} 
                       />
                     ))}
                   </div>

@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, X, Shield, Lock, User, Info, Flag, CheckCircle2, KeyRound } from 'lucide-react';
+import { Send, X, Shield, Lock, User, Info, Flag, CheckCircle2, KeyRound, Loader2 } from 'lucide-react';
 import { Message, User as UserType, UserRole, VerificationStatus } from '../types';
 import VerificationBadge from './VerificationBadge';
+import { apiClient } from '../src/services/api';
+import type { BackendChatThread, BackendMessage } from '../src/services/apiTypes';
 
 interface Props {
   recipientName: string;
@@ -19,31 +21,20 @@ interface Props {
   completionPin?: string;
   userRole: UserRole;
   itemType: 'REQUEST' | 'OFFER';
+  itemId: string;
 }
 
 const ChatModal: React.FC<Props> = ({ 
     recipientName, recipientAvatarId, recipientVerificationStatus, itemName, currentUser, 
     onClose, onFlag, onAcceptMatch, onVerifyPin, 
-    isOwner, status, completionPin, userRole, itemType 
+    isOwner, status, completionPin, userRole, itemType, itemId
 }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'sys-1',
-      senderId: 'system',
-      text: `You are connected with ${recipientName} regarding "${itemName}".`,
-      timestamp: Date.now(),
-      isSystem: true
-    },
-    {
-        id: 'sys-2',
-        senderId: 'system',
-        text: 'Safety Tip: Coordinate pickup locations in public areas. Do not share financial info.',
-        timestamp: Date.now(),
-        isSystem: true
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [pinInput, setPinInput] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -51,29 +42,162 @@ const ChatModal: React.FC<Props> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Load chat thread and messages
+  useEffect(() => {
+    const loadChat = async () => {
+      setLoading(true);
+      try {
+        // Get all threads and find the one for this item
+        const threadsResponse = await apiClient.getChatThreads();
+        if (threadsResponse.data && Array.isArray(threadsResponse.data)) {
+          const thread = (threadsResponse.data as BackendChatThread[]).find(
+            (t) => t.item_id === itemId && t.item_type === itemType
+          );
+
+          if (thread) {
+            setThreadId(thread.id);
+            // Map backend messages to frontend format
+            const mappedMessages: Message[] = thread.messages.map((msg: BackendMessage) => ({
+              id: msg.id,
+              senderId: msg.sender_id,
+              text: msg.text,
+              timestamp: new Date(msg.timestamp).getTime(),
+              isSystem: msg.is_system || false,
+            }));
+            
+            // Add system messages
+            const systemMessages: Message[] = [
+              {
+                id: 'sys-1',
+                senderId: 'system',
+                text: `You are connected with ${recipientName} regarding "${itemName}".`,
+                timestamp: Date.now(),
+                isSystem: true
+              },
+              {
+                id: 'sys-2',
+                senderId: 'system',
+                text: 'Safety Tip: Coordinate pickup locations in public areas. Do not share financial info.',
+                timestamp: Date.now(),
+                isSystem: true
+              }
+            ];
+            setMessages([...systemMessages, ...mappedMessages]);
+          } else {
+            // No thread yet, just show system messages
+            setMessages([
+              {
+                id: 'sys-1',
+                senderId: 'system',
+                text: `You are connected with ${recipientName} regarding "${itemName}".`,
+                timestamp: Date.now(),
+                isSystem: true
+              },
+              {
+                id: 'sys-2',
+                senderId: 'system',
+                text: 'Safety Tip: Coordinate pickup locations in public areas. Do not share financial info.',
+                timestamp: Date.now(),
+                isSystem: true
+              }
+            ]);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading chat:', error);
+        // Fallback to system messages only
+        setMessages([
+          {
+            id: 'sys-1',
+            senderId: 'system',
+            text: `You are connected with ${recipientName} regarding "${itemName}".`,
+            timestamp: Date.now(),
+            isSystem: true
+          },
+          {
+            id: 'sys-2',
+            senderId: 'system',
+            text: 'Safety Tip: Coordinate pickup locations in public areas. Do not share financial info.',
+            timestamp: Date.now(),
+            isSystem: true
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChat();
+  }, [itemId, itemType, recipientName, itemName]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
     // Auto focus input on mount
-    inputRef.current?.focus();
-  }, []);
+    if (!loading) {
+      inputRef.current?.focus();
+    }
+  }, [loading]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async () => {
+    if (!inputValue.trim() || sending) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: currentUser.id,
-      text: inputValue,
-      timestamp: Date.now()
-    };
+    setSending(true);
+    try {
+      // If no thread exists, accept match first to create thread
+      let currentThreadId = threadId;
+      if (!currentThreadId) {
+        const acceptResponse = await apiClient.acceptMatch(itemId);
+        if (acceptResponse.error) {
+          showToast(acceptResponse.error);
+          setSending(false);
+          return;
+        }
+        if (acceptResponse.data) {
+          currentThreadId = acceptResponse.data.thread_id;
+          setThreadId(currentThreadId);
+        }
+      }
 
-    setMessages([...messages, newMessage]);
-    setInputValue('');
-    
-    // Automated reply removed as per user request
+      if (!currentThreadId) {
+        showToast('Error: Could not create chat thread.');
+        setSending(false);
+        return;
+      }
+
+      // Send message
+      const response = await apiClient.sendMessage(currentThreadId, inputValue);
+      if (response.error) {
+        showToast(response.error);
+        setSending(false);
+        return;
+      }
+
+      if (response.data) {
+        const data = response.data as BackendMessage;
+        const newMessage: Message = {
+          id: data.id,
+          senderId: data.sender_id,
+          text: data.text,
+          timestamp: new Date(data.timestamp).getTime(),
+          isSystem: data.is_system || false,
+        };
+        setMessages([...messages, newMessage]);
+        setInputValue('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      showToast('Failed to send message. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const showToast = (message: string) => {
+    // Simple toast notification - you might want to use a toast library
+    alert(message);
   };
 
   const AVATARS = [
@@ -95,8 +219,63 @@ const ChatModal: React.FC<Props> = ({
   // Identify role of the other person
   const recipientRole = userRole === UserRole.SEEKER ? 'Donor' : 'Student';
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement?.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, [loading]);
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div 
+      ref={modalRef}
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-modal-title"
+    >
       <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[650px] animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
@@ -112,7 +291,7 @@ const ChatModal: React.FC<Props> = ({
             </div>
             <div className="ml-3">
               <div className="flex items-center">
-                <h3 className="font-bold text-sm flex items-center mr-2">
+                <h3 id="chat-modal-title" className="font-bold text-sm flex items-center mr-2">
                     {recipientName} 
                 </h3>
                 <span className="text-[10px] px-1.5 py-0.5 bg-slate-700 rounded text-slate-300 uppercase font-bold mr-2">
@@ -172,7 +351,7 @@ const ChatModal: React.FC<Props> = ({
                             <button 
                                 onClick={() => onVerifyPin(pinInput)}
                                 disabled={pinInput.length !== 4}
-                                className="bg-emerald-600 text-white px-3 py-1 rounded font-bold text-sm hover:bg-emerald-700 disabled:opacity-50"
+                                className="bg-emerald-700 text-white px-3 py-1 rounded font-bold text-sm hover:bg-emerald-800 disabled:opacity-50"
                             >
                                 Verify
                             </button>
@@ -184,7 +363,12 @@ const ChatModal: React.FC<Props> = ({
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 bg-slate-50 dark:bg-slate-800 space-y-4">
-          {messages.map((msg) => {
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+            </div>
+          ) : (
+            messages.map((msg) => {
             if (msg.isSystem) {
                 return (
                     <div key={msg.id} className="flex justify-center my-2">
@@ -208,7 +392,7 @@ const ChatModal: React.FC<Props> = ({
                 </div>
               </div>
             );
-          })}
+          }))}
           <div ref={messagesEndRef} />
         </div>
 
@@ -228,10 +412,14 @@ const ChatModal: React.FC<Props> = ({
             />
             <button 
               type="submit"
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || sending || loading}
               className="p-3 bg-brand-600 text-white rounded-full hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"
             >
-              <Send className="h-5 w-5" />
+              {sending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
             </button>
           </form>
           <div className="text-center mt-2">

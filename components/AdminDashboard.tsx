@@ -55,7 +55,7 @@ const AdminDashboard: React.FC<Props> = ({ donors, flaggedItems, onDeleteDonor, 
                     <p className="text-sm font-bold text-slate-500 uppercase">Total Users</p>
                     <p className="text-3xl font-bold text-brand-600">1,240</p>
                     </div>
-                    <Users className="h-8 w-8 text-brand-200" />
+                    <Users className="h-8 w-8 text-brand-600" />
                 </div>
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -107,7 +107,7 @@ const AdminDashboard: React.FC<Props> = ({ donors, flaggedItems, onDeleteDonor, 
                         <span className={`px-2 py-0.5 rounded text-xs font-bold mr-2 ${u.role === 'SEEKER' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'}`}>
                             {u.role}
                         </span>
-                        {u.status === 'VERIFIED' ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-slate-300" />}
+                        {u.status === 'VERIFIED' ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-slate-600" />}
                         </div>
                     </div>
                 ))}

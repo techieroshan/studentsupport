@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, MessageSquare, Share2 } from 'lucide-react';
 
 interface Props {
@@ -12,10 +12,67 @@ const RatingModal: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [comment, setComment] = useState('');
   const [isPublic, setIsPublic] = useState(true);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onCancel]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div 
+      ref={modalRef}
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="rating-modal-title"
+    >
       <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden p-6 animate-in zoom-in duration-200">
-        <h3 className="text-xl font-bold text-center text-slate-900 mb-2">How was your experience?</h3>
+        <h3 id="rating-modal-title" className="text-xl font-bold text-center text-slate-900 mb-2">How was your experience?</h3>
         <p className="text-sm text-center text-slate-500 mb-6">Your feedback helps keep our community safe and kind.</p>
         
         <div className="flex justify-center space-x-2 mb-6">
@@ -26,7 +83,7 @@ const RatingModal: React.FC<Props> = ({ onSubmit, onCancel }) => {
               className="focus:outline-none transition transform hover:scale-110"
             >
               <Star 
-                className={`h-8 w-8 ${star <= stars ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`} 
+                className={`h-8 w-8 ${star <= stars ? 'fill-yellow-400 text-yellow-400' : 'text-slate-500'}`} 
               />
             </button>
           ))}

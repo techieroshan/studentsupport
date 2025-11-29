@@ -86,6 +86,57 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
     };
   }, []);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !processing) {
+        onCancel();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onCancel, processing]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal || processing) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, [processing, authMode, awaitingEmail]);
+
   const verificationSteps = targetRole === UserRole.SEEKER 
     ? [
         { title: 'University Email Check', desc: `Validating enrollment for ${formData.email}...`, icon: FileCheck },
@@ -594,7 +645,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
             </div>
            )}
            
-           <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white">
+           <h2 id="auth-modal-title" className="text-xl font-bold text-center text-slate-900 dark:text-white">
              {awaitingEmail ? 'Check Your Email' : authMode === 'LOGIN' ? 'Welcome Back' : authMode === 'REGISTER' ? 'Secure Verification' : 'Reset Password'}
            </h2>
         </div>
