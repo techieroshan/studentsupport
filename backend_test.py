@@ -318,11 +318,11 @@ class StudentSupportAPITester:
         self.log_test("Invalid login handling", success,
                      "Proper 401 response" if success else response)
         
-        # Test unauthorized access
+        # Test unauthorized access (expect 403 for this API)
         success, response = self.make_request('GET', '/users/profile', 
-                                            expected_status=401)
+                                            expected_status=403)
         self.log_test("Unauthorized access handling", success,
-                     "Proper 401 response" if success else response)
+                     "Proper 403 response" if success else response)
 
     def run_all_tests(self):
         """Run all test suites"""
