@@ -89,6 +89,24 @@ function App() {
           <li>Admin moderation</li>
         </ul>
       </div>
+      
+      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+        <h2>Backend Integration Status:</h2>
+        {apiData.loading ? (
+          <p>Loading data from backend...</p>
+        ) : apiData.error ? (
+          <p style={{ color: 'red' }}>Error: {apiData.error}</p>
+        ) : (
+          <div>
+            <p>✅ Backend API connected successfully!</p>
+            <ul>
+              <li>Donors loaded: {apiData.donors.length}</li>
+              <li>Requests loaded: {apiData.requests.length}</li>
+              <li>Offers loaded: {apiData.offers.length}</li>
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
