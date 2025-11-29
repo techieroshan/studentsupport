@@ -37,6 +37,7 @@ def event_loop() -> Generator:
 
 
 @pytest.fixture(scope="function")
+@pytest.mark.asyncio
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
     """Create a fresh database for each test."""
     # Create all tables
