@@ -259,6 +259,9 @@ class StudentSupportAPITester:
             return
         
         # Test create offer (requires donor role, might fail)
+        from datetime import datetime, timedelta
+        available_until = (datetime.utcnow() + timedelta(days=1)).isoformat()
+        
         offer_data = {
             "description": "Fresh homemade pasta with vegetables",
             "dietary_tags": ["Vegetarian"],
@@ -266,6 +269,7 @@ class StudentSupportAPITester:
             "logistics": ["PICKUP"],
             "frequency": "ONCE",
             "availability": "Available tonight",
+            "available_until": available_until,
             "is_anonymous": False
         }
         
