@@ -1226,12 +1226,16 @@ function App() {
             <button 
               onClick={() => handleNavigate('login-seeker')}
               className="px-8 py-4 bg-white text-brand-700 font-bold text-lg rounded-xl shadow-lg hover:bg-slate-50 hover:scale-105 transition transform"
+              aria-label="Student Login - Access free meals"
+              data-testid="student-login-btn"
             >
               I'm a Student
             </button>
             <button 
               onClick={() => handleNavigate('login-donor')}
               className="px-8 py-4 bg-transparent border-2 border-white text-white font-bold text-lg rounded-xl shadow-lg hover:bg-white/10 hover:scale-105 transition transform"
+              aria-label="Donor Login - Help students"
+              data-testid="donor-login-btn"
             >
               I Want to Donate
             </button>
