@@ -13,18 +13,23 @@ from auth import get_password_hash
 # Test database URL
 TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/studentsupport_test"
 
-# Create test engine
+# Create test engine with proper pool settings
 test_engine = create_async_engine(
     TEST_DATABASE_URL,
     echo=False,
-    future=True
+    future=True,
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20
 )
 
 # Create test session factory
 test_session_maker = async_sessionmaker(
     test_engine,
     class_=AsyncSession,
-    expire_on_commit=False
+    expire_on_commit=False,
+    autoflush=False,
+    autocommit=False
 )
 
 
