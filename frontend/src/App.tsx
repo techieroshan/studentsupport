@@ -1269,7 +1269,7 @@ function App() {
                  <GraduationCap className="h-8 w-8 text-brand-600" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Request a Meal</h3>
-              <p className="text-slate-600 mb-6 flex-grow">Living >30 miles from home? Verified students can request free, nutritious meals.</p>
+              <p className="text-slate-600 mb-6 flex-grow">Living &gt;30 miles from home? Verified students can request free, nutritious meals.</p>
               <button className="w-full py-3 rounded-xl font-bold bg-brand-600 text-white shadow hover:bg-brand-700">I Need Food</button>
            </div>
 
