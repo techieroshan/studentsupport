@@ -44,7 +44,11 @@ class StudentSupportAPITester:
     def make_request(self, method: str, endpoint: str, data: Dict = None, 
                     expected_status: int = 200, auth_required: bool = False) -> tuple:
         """Make HTTP request and return success status and response"""
-        url = f"{self.base_url}/{endpoint.lstrip('/')}"
+        # Handle root API endpoints correctly
+        if endpoint.startswith('/api'):
+            url = f"{self.base_url.replace('/api', '')}{endpoint}"
+        else:
+            url = f"{self.base_url}/{endpoint.lstrip('/')}"
         headers = {}
         
         if auth_required and self.auth_token:
