@@ -409,6 +409,45 @@ function App() {
   const [flaggedContent, setFlaggedContent] = useState<FlaggedContent[]>([]);
   const [motivationalQuote, setMotivationalQuote] = useState<string>("");
 
+  // Load real data from backend API on mount
+  useEffect(() => {
+    const loadBackendData = async () => {
+      try {
+        // Load donors from backend
+        const donorsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/donors`);
+        if (donorsResponse.ok) {
+          const donorsData = await donorsResponse.json();
+          setDonors(donorsData);
+        }
+
+        // Load requests
+        const requestsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/requests`);
+        if (requestsResponse.ok) {
+          const requestsData = await requestsResponse.json();
+          setRequests(requestsData);
+        }
+
+        // Load offers
+        const offersResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/offers`);
+        if (offersResponse.ok) {
+          const offersData = await offersResponse.json();
+          setOffers(offersData);
+        }
+
+        // Check if user is already logged in
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+          setCurrentUser(JSON.parse(savedUser));
+        }
+      } catch (error) {
+        console.error('Error loading backend data:', error);
+        // Keep mock data as fallback
+      }
+    };
+
+    loadBackendData();
+  }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentPage]);
