@@ -274,9 +274,9 @@ class StudentSupportAPITester:
         }
         
         success, response = self.make_request('POST', '/offers', 
-                                            offer_data, 201, auth_required=True)
-        self.log_test("Create meal offer", success,
-                     f"Offer ID: {response.get('id', 'unknown')}" if success else response)
+                                            offer_data, 403, auth_required=True)
+        self.log_test("Create meal offer (SEEKER role restriction)", success,
+                     "Correctly blocked SEEKER from creating offers" if success else response)
         
         # Test get my offers
         success, response = self.make_request('GET', '/offers/my-offers', 
