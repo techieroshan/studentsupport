@@ -73,7 +73,7 @@ const SuccessStories: React.FC<Props> = ({ reviews }) => {
                   </p>
                 </div>
                 
-                <div className="mt-6 pt-4 border-t border-slate-200 text-xs text-slate-400 font-medium">
+                <div className="mt-6 pt-4 border-t border-slate-200 text-xs text-slate-600 font-medium">
                    {new Date(review.timestamp).toLocaleDateString()}
                 </div>
               </div>

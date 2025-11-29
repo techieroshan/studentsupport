@@ -117,7 +117,7 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
                 </button>
                 <button 
                   onClick={() => onNavigate('login-donor')}
-                  className="px-5 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
+                  className="px-5 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-600 selection:bg-brand-700 selection:text-white"
                 >
                   I Want to Help
                 </button>
@@ -128,7 +128,7 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
           <div className="flex items-center md:hidden space-x-2">
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
-              className="p-2 text-slate-600 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded"
+              className="p-2 text-slate-700 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded"
               aria-label="Toggle menu"
               aria-expanded={isMenuOpen}
             >

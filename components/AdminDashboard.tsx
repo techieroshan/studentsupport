@@ -71,7 +71,7 @@ const AdminDashboard: React.FC<Props> = ({ donors, flaggedItems, onDeleteDonor, 
                 <div className="flex items-center justify-between">
                     <div>
                     <p className="text-sm font-bold text-slate-500 uppercase">Flagged Items</p>
-                    <p className={`text-3xl font-bold ${flaggedItems.length > 0 ? 'text-red-600' : 'text-slate-400'}`}>{flaggedItems.length}</p>
+                    <p className={`text-3xl font-bold ${flaggedItems.length > 0 ? 'text-red-600' : 'text-slate-600'}`}>{flaggedItems.length}</p>
                     </div>
                     <AlertTriangle className={`h-8 w-8 ${flaggedItems.length > 0 ? 'text-red-200' : 'text-slate-200'}`} />
                 </div>
@@ -205,7 +205,7 @@ const AdminDashboard: React.FC<Props> = ({ donors, flaggedItems, onDeleteDonor, 
                                        onDeleteDonor(donor.id);
                                    }
                                }}
-                               className="p-2 text-slate-400 hover:text-red-600 transition"
+                               className="p-2 text-slate-600 hover:text-red-600 transition"
                             >
                                 <Trash2 className="h-5 w-5" />
                             </button>

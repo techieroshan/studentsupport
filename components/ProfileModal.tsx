@@ -203,7 +203,7 @@ const ProfileModal: React.FC<Props> = ({ currentUser, onUpdate, onCancel, pastDo
                             <span className="text-sm text-slate-700">Total Meals Donated</span>
                             <span className="text-lg font-bold text-emerald-600">{pastDonations}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-2">Thank you for making a difference!</p>
+                        <p className="text-xs text-slate-600 mt-2">Thank you for making a difference!</p>
                     </div>
                 </>
             )}

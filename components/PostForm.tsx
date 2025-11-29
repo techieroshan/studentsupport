@@ -167,7 +167,7 @@ const PostForm: React.FC<Props> = ({ type, onCancel, onSubmit }) => {
                 </button>
               ))}
             </div>
-            <p className="text-[10px] text-slate-400 mt-2 italic">* Hover over tags for definitions.</p>
+            <p className="text-[10px] text-slate-600 mt-2 italic">* Hover over tags for definitions.</p>
           </div>
 
           <div className="mb-6">

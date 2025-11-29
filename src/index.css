@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Improve text selection contrast globally (WCAG 2.2 AA) */
+::selection {
+  background-color: #1d4ed8; /* brand-700 */
+  color: #ffffff;
+}
+
+
 
 
 

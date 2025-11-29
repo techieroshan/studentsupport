@@ -38,20 +38,20 @@ const DonorsPage: React.FC<Props> = ({ items }) => {
               Every Meal Made Possible by <br className="hidden md:block"/>
               <span className="text-brand-400">Generous Donors Worldwide</span>
            </h1>
-           <p className="max-w-2xl mx-auto text-xl text-slate-400 mb-10">
+           <p className="max-w-2xl mx-auto text-xl text-slate-600 mb-10">
               We connect students with food, but these visionary partners make the platform possible. 
               Thank you for your grants, charitable contributions, and unwavering support.
            </p>
 
            <div className="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
               <div className="text-left mr-8">
-                 <p className="text-sm text-slate-400 uppercase font-bold">Total Raised (All Time)</p>
+                 <p className="text-sm text-slate-600 uppercase font-bold">Total Raised (All Time)</p>
                  <p className="text-4xl font-extrabold text-white">$1,247,830</p>
               </div>
               <div className="h-10 w-px bg-white/20 mr-8"></div>
               <div className="text-left">
-                 <p className="text-sm text-slate-400 uppercase font-bold">From</p>
-                 <p className="text-2xl font-bold text-white">842 Donors <span className="text-base font-normal text-slate-400">across 23 Countries</span></p>
+                 <p className="text-sm text-slate-600 uppercase font-bold">From</p>
+                 <p className="text-2xl font-bold text-white">842 Donors <span className="text-base font-normal text-slate-200">across 23 Countries</span></p>
               </div>
            </div>
         </div>
@@ -122,7 +122,7 @@ const DonorsPage: React.FC<Props> = ({ items }) => {
                                    ) : donor.logoUrl ? (
                                       <img src={donor.logoUrl} alt={donor.name} className="w-full h-full object-contain p-1" />
                                    ) : (
-                                      <span className="text-xl font-bold text-slate-400">{donor.name.charAt(0)}</span>
+                                      <span className="text-xl font-bold text-slate-500">{donor.name.charAt(0)}</span>
                                    )}
                                 </div>
 
@@ -133,7 +133,7 @@ const DonorsPage: React.FC<Props> = ({ items }) => {
                                 
                                 <div className="mt-auto pt-4 w-full border-t border-slate-200/50">
                                    <p className="text-2xl font-extrabold text-slate-800">{donor.totalContributionDisplay}</p>
-                                   <p className="text-xs text-slate-400 mt-1">{donor.location} • Since {donor.since}</p>
+                                   <p className="text-xs text-slate-600 mt-1">{donor.location} • Since {donor.since}</p>
                                 </div>
 
                                 {donor.quote && (

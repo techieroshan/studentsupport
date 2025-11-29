@@ -183,7 +183,7 @@ const MapVisualizer: React.FC<Props> = ({ items, center, userRole, onSelect, onV
         <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-900 z-10">
             <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-brand-600 dark:text-brand-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Loading Map...</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Loading Map...</p>
             </div>
         </div>
       )}

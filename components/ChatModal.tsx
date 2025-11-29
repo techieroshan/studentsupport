@@ -120,15 +120,15 @@ const ChatModal: React.FC<Props> = ({
                 </span>
                 <VerificationBadge status={recipientVerificationStatus} showLabel={false} />
               </div>
-              <p className="text-xs text-slate-400 truncate max-w-[150px]">{status === 'IN_PROGRESS' ? '• In Progress' : '• Connecting...'}</p>
+              <p className="text-xs text-slate-600 truncate max-w-[150px]">{status === 'IN_PROGRESS' ? '• In Progress' : '• Connecting...'}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <button onClick={onFlag} className="p-2 hover:bg-slate-800 rounded-full transition text-slate-400 hover:text-red-400" title="Flag Transaction">
+            <button onClick={onFlag} className="p-2 hover:bg-slate-800 rounded-full transition text-slate-500 hover:text-red-500" title="Flag Transaction">
                 <Flag className="h-5 w-5" />
             </button>
             <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-full transition">
-                <X className="h-5 w-5 text-slate-400" />
+                <X className="h-5 w-5 text-slate-500" />
             </button>
           </div>
         </div>
@@ -235,7 +235,7 @@ const ChatModal: React.FC<Props> = ({
             </button>
           </form>
           <div className="text-center mt-2">
-             <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center justify-center">
+             <p className="text-[10px] text-slate-600 dark:text-slate-400 flex items-center justify-center">
                 <Shield className="h-3 w-3 mr-1" /> Chats are end-to-end masked for privacy.
              </p>
           </div>

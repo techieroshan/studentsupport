@@ -19,7 +19,7 @@ const Footer: React.FC<Props> = ({ onNavigate, partners = [] }) => (
              </div>
              <span className="text-lg font-bold">New Abilities Foundation</span>
            </div>
-           <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
+           <p className="text-slate-600 text-sm leading-relaxed max-w-sm">
              A 501(c)(3) Non-profit organization empowering students and communities. 
              This portal connects students in need with generous neighbors. 
              No money changes hands—just kindness and nutrition.
@@ -28,7 +28,7 @@ const Footer: React.FC<Props> = ({ onNavigate, partners = [] }) => (
         
         <div>
           <h3 className="font-semibold mb-4 text-slate-200">Links</h3>
-          <ul className="space-y-2 text-sm text-slate-400">
+          <ul className="space-y-2 text-sm text-slate-600">
             <li><a href="https://newabilities.org/about" target="_blank" rel="noreferrer" className="hover:text-white">About Us</a></li>
             <li>
                 <button onClick={() => onNavigate?.('donors')} className="hover:text-white text-left">Our Donors</button>
@@ -45,7 +45,7 @@ const Footer: React.FC<Props> = ({ onNavigate, partners = [] }) => (
 
         <div>
           <h3 className="font-semibold mb-4 text-slate-200">Contact</h3>
-          <ul className="space-y-2 text-sm text-slate-400">
+          <ul className="space-y-2 text-sm text-slate-600">
             <li><a href="https://newabilities.org/contact" target="_blank" rel="noreferrer" className="hover:text-white underline">Contact Support</a></li>
             <li>+1 (682) 432-9400</li>
             <li>1320 Pepperhill Ln</li>
