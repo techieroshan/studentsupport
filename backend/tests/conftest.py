@@ -36,7 +36,7 @@ def event_loop() -> Generator:
     loop.close()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=False)
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
     """Create a fresh database for each test."""
     # Create all tables
@@ -46,7 +46,14 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
     
     # Create session
     async with test_session_maker() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
     
     # Drop all tables after test
     async with test_engine.begin() as conn:
