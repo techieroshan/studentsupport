@@ -1225,7 +1225,7 @@ function App() {
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in slide-in-from-bottom-6 duration-700 delay-200">
             <button 
               onClick={() => handleNavigate('login-seeker')}
-              className="px-8 py-4 bg-white text-brand-700 font-bold text-lg rounded-xl shadow-lg hover:bg-slate-50 hover:scale-105 transition transform"
+              className="px-8 py-4 bg-white text-blue-700 font-bold text-lg rounded-xl shadow-lg hover:bg-slate-50 hover:scale-105 transition transform"
               aria-label="Student Login - Access free meals"
               data-testid="student-login-btn"
             >
@@ -1233,7 +1233,7 @@ function App() {
             </button>
             <button 
               onClick={() => handleNavigate('login-donor')}
-              className="px-8 py-4 bg-transparent border-2 border-white text-white font-bold text-lg rounded-xl shadow-lg hover:bg-white/10 hover:scale-105 transition transform"
+              className="px-8 py-4 bg-blue-600 border-2 border-blue-600 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-blue-700 hover:scale-105 transition transform"
               aria-label="Donor Login - Help students"
               data-testid="donor-login-btn"
             >
