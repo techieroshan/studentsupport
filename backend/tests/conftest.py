@@ -56,13 +56,15 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
 @pytest.fixture(scope="function")
 async def client(test_db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     """Create a test client with database dependency override."""
+    from httpx import ASGITransport
     
     async def override_get_db():
         yield test_db
     
     app.dependency_overrides[get_db] = override_get_db
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
     
     app.dependency_overrides.clear()
