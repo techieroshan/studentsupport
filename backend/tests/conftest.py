@@ -41,33 +41,30 @@ def event_loop() -> Generator:
     loop.close()
 
 
-@pytest.fixture(scope="session", autouse=True)
-async def setup_test_database():
-    """Setup test database once for all tests."""
+@pytest.fixture(scope="function")
+async def test_db() -> AsyncGenerator[AsyncSession, None]:
+    """Create a fresh database and session for each test."""
+    # Create tables
     async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     
-    yield
+    # Create connection and transaction
+    async_connection = await test_engine.connect()
+    async_transaction = await async_connection.begin()
     
-    # Cleanup after all tests
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest.fixture(scope="function")
-async def test_db(setup_test_database) -> AsyncGenerator[AsyncSession, None]:
-    """Create a fresh session for each test and clean data."""
-    connection = await test_engine.connect()
-    transaction = await connection.begin()
-    
-    session = AsyncSession(bind=connection, expire_on_commit=False)
+    # Create session bound to connection
+    session = AsyncSession(bind=async_connection, expire_on_commit=False)
     
     yield session
     
+    # Cleanup
     await session.close()
-    await transaction.rollback()
-    await connection.close()
+    await async_transaction.rollback()
+    await async_connection.close()
+    
+    # Drop tables
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest.fixture(scope="function")
