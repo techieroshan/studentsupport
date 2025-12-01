@@ -2,15 +2,22 @@
 
 /**
  * WCAG 2.2 AA Color Contrast Audit Script
- * 
- * This script checks color combinations used in the codebase
- * against WCAG 2.2 AA contrast requirements:
+ *
+ * This script scans the actual codebase for Tailwind text/background
+ * utility class combinations (e.g. `text-slate-700` on `bg-slate-50`)
+ * and checks them against WCAG 2.2 AA contrast requirements:
  * - Normal text: 4.5:1 minimum
  * - Large text (18pt+ or 14pt+ bold): 3:1 minimum
  * - UI components: 3:1 minimum
+ *
+ * This avoids maintaining a hard-coded list of color pairs and
+ * instead reflects what is really used in components/ and src/.
  */
 
-// Tailwind color palette from tailwind.config.js
+import fs from 'fs';
+import path from 'path';
+
+// Tailwind color palette from tailwind.config.js (keep in sync manually)
 const colors = {
   brand: {
     50: '#eff6ff',
@@ -82,29 +89,65 @@ function checkContrast(foreground, background, isLargeText = false) {
   return { ratio, passes, minRatio };
 }
 
-// Known combinations we actively use in the UI.
-// NOTE: We intentionally only track currently-used pairings here.
-// If new text/background Tailwind utilities are introduced, they should be
-// added below and verified against WCAG 2.2 AA.
-const problematicCombinations = [
-  // Text on light brand backgrounds (used in badges, chips, etc.)
-  { fg: colors.brand[700], bg: colors.brand[50], context: 'text-brand-700 on bg-brand-50', isLarge: false },
-  { fg: colors.brand[700], bg: colors.brand[100], context: 'text-brand-700 on bg-brand-100', isLarge: false },
+// Utility: recursively walk a directory and return a list of files matching extensions
+function walk(dir, exts, collected = []) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      // Skip node_modules and dist
+      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git') continue;
+      walk(full, exts, collected);
+    } else {
+      if (exts.includes(path.extname(entry.name))) {
+        collected.push(full);
+      }
+    }
+  }
+  return collected;
+}
 
-  // Emerald accents on light emerald backgrounds
-  { fg: colors.emerald[700], bg: colors.emerald[50], context: 'text-emerald-700 on bg-emerald-50', isLarge: false },
-  { fg: colors.emerald[700], bg: colors.emerald[100], context: 'text-emerald-700 on bg-emerald-100', isLarge: false },
+// Map Tailwind utility name (e.g. "brand-600") to hex color
+function resolveTailwindColor(token) {
+  // token like "brand-600" or "slate-50"
+  const [family, shadeStr] = token.split('-');
+  const shade = Number(shadeStr);
+  const familyColors = colors[family];
+  if (!familyColors) return null;
+  const hex = familyColors[shade];
+  return hex ?? null;
+}
 
-  // Slate text on light slate backgrounds (cards, panels)
-  { fg: colors.slate[600], bg: colors.slate[50], context: 'text-slate-600 on bg-slate-50', isLarge: false },
-  { fg: colors.slate[700], bg: colors.slate[100], context: 'text-slate-700 on bg-slate-100', isLarge: false },
+// Extract text-*/bg-* combos actually used on the same line
+function collectCombosFromFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const lines = content.split(/\r?\n/);
+  const combos = [];
 
-  // White text on solid brand/emerald buttons
-  { fg: colors.white, bg: colors.brand[600], context: 'text-white on bg-brand-600', isLarge: false },
-  { fg: colors.white, bg: colors.brand[700], context: 'text-white on bg-brand-700', isLarge: false },
-  // bg-emerald-700 is the only emerald solid background we allow with white text
-  { fg: colors.white, bg: colors.emerald[700], context: 'text-white on bg-emerald-700', isLarge: false },
-];
+  const textRegex = /text-(brand|slate|emerald)-(50|100|200|300|400|500|600|700|800|900)/g;
+  const bgRegex = /bg-(brand|slate|emerald)-(50|100|200|300|400|500|600|700|800|900)/g;
+
+  lines.forEach((line, idx) => {
+    const textMatches = Array.from(line.matchAll(textRegex));
+    const bgMatches = Array.from(line.matchAll(bgRegex));
+    if (!textMatches.length || !bgMatches.length) return;
+
+    const texts = textMatches.map((m) => `${m[1]}-${m[2]}`);
+    const bgs = bgMatches.map((m) => `${m[1]}-${m[2]}`);
+
+    texts.forEach((t) => {
+      bgs.forEach((b) => {
+        combos.push({
+          textToken: t,
+          bgToken: b,
+          context: `${t} on ${b} (${path.relative(process.cwd(), filePath)}:${idx + 1})`,
+        });
+      });
+    });
+  });
+
+  return combos;
+}
 
 console.log('WCAG 2.2 AA Color Contrast Audit\n');
 console.log('='.repeat(60));
@@ -118,37 +161,84 @@ console.log('');
 const failures = [];
 const passes = [];
 
-problematicCombinations.forEach(({ fg, bg, context, isLarge }) => {
-  const { ratio, passes: passesCheck, minRatio } = checkContrast(fg, bg, isLarge);
-  const result = {
-    context,
-    foreground: fg,
-    background: bg,
-    ratio: ratio.toFixed(2),
-    minRatio,
-    passes: passesCheck,
-    isLarge,
-  };
-  
-  if (passesCheck) {
-    passes.push(result);
-  } else {
-    failures.push(result);
-  }
+// 1. Collect files and Tailwind text/bg combos actually used
+const projectRoot = process.cwd();
+const exts = ['.tsx', '.ts', '.jsx', '.js', '.css'];
+const rootsToScan = ['src', 'components', 'App.tsx', 'index.tsx'].map((p) =>
+  path.join(projectRoot, p),
+);
+
+const allFiles = rootsToScan
+  .filter((p) => fs.existsSync(p))
+  .flatMap((p) => {
+    const stat = fs.statSync(p);
+    if (stat.isDirectory()) return walk(p, exts);
+    return [p];
+  });
+
+const comboMap = new Map(); // key: "text-token|bg-token", value: { textToken, bgToken, contexts: [] }
+
+allFiles.forEach((filePath) => {
+  const combos = collectCombosFromFile(filePath);
+  combos.forEach(({ textToken, bgToken, context }) => {
+    const key = `${textToken}|${bgToken}`;
+    const existing = comboMap.get(key) ?? { textToken, bgToken, contexts: [] };
+    existing.contexts.push(context);
+    comboMap.set(key, existing);
+  });
 });
+
+if (comboMap.size === 0) {
+  console.log('No Tailwind text-/bg- combinations found to audit.');
+} else {
+  comboMap.forEach(({ textToken, bgToken, contexts }) => {
+    const fgHex = textToken === 'white' ? colors.white : resolveTailwindColor(textToken);
+    const bgHex = bgToken === 'white' ? colors.white : resolveTailwindColor(bgToken);
+
+    if (!fgHex || !bgHex) {
+      // Skip colors we don't know how to resolve
+      return;
+    }
+
+    const { ratio, passes: passesCheck, minRatio } = checkContrast(fgHex, bgHex, false);
+    const ratioStr = ratio.toFixed(2);
+    const contextLabel = `${textToken} on ${bgToken}`;
+
+    const result = {
+      context: contextLabel,
+      foreground: fgHex,
+      background: bgHex,
+      ratio: ratioStr,
+      minRatio,
+      passes: passesCheck,
+      isLarge: false,
+      examples: contexts.slice(0, 5),
+    };
+
+    if (passesCheck) {
+      passes.push(result);
+    } else {
+      failures.push(result);
+    }
+  });
+}
 
 if (failures.length > 0) {
   console.log('❌ FAILING COMBINATIONS:\n');
-  failures.forEach(({ context, ratio, minRatio, isLarge }) => {
+  failures.forEach(({ context, ratio, minRatio, examples }) => {
     console.log(`  ${context}`);
-    console.log(`    Ratio: ${ratio}:1 (Required: ${minRatio}:1 for ${isLarge ? 'large' : 'normal'} text)`);
+    console.log(`    Ratio: ${ratio}:1 (Required: ${minRatio}:1 for normal text)`);
+    if (examples && examples.length > 0) {
+      console.log('    Examples:');
+      examples.forEach((ex) => console.log(`      - ${ex}`));
+    }
     console.log('');
   });
 }
 
 if (passes.length > 0) {
   console.log('✅ PASSING COMBINATIONS:\n');
-  passes.forEach(({ context, ratio, minRatio }) => {
+  passes.forEach(({ context, ratio }) => {
     console.log(`  ${context} - ${ratio}:1 (✓)`);
   });
 }
