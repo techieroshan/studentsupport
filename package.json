@@ -10,7 +10,11 @@
     "audit:wcag": "node scripts/wcag-audit.js",
     "audit:full": "bash scripts/wcag-full-audit.sh",
     "sitemap": "tsx scripts/generate-sitemap.ts",
-    "prebuild": "npm run sitemap"
+    "prebuild": "npm run sitemap",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test": "npm run typecheck && npm run test:e2e"
   },
   "dependencies": {
     "@google/genai": "^1.30.0",

@@ -299,7 +299,7 @@ const ChatModal: React.FC<Props> = ({
                 </span>
                 <VerificationBadge status={recipientVerificationStatus} showLabel={false} />
               </div>
-              <p className="text-xs text-slate-600 truncate max-w-[150px]">{status === 'IN_PROGRESS' ? '• In Progress' : '• Connecting...'}</p>
+              <p className="text-xs text-slate-300 truncate max-w-[150px]">{status === 'IN_PROGRESS' ? '• In Progress' : '• Connecting...'}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">

@@ -1581,11 +1581,11 @@ function AppContent() {
           onClick={() => handleNavigate('post-request')}
           className="p-6 bg-brand-600 text-white rounded-xl shadow-md hover:bg-brand-700 transition text-left group"
         >
-          <div className="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
-            <PlusCircle className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="text-lg font-bold">Request a Meal</h2>
-          <p className="text-sm text-white/90 mt-1">Post a specific request for what you need.</p>
+           <div className="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+              <PlusCircle className="h-6 w-6 text-white" />
+           </div>
+           <h3 className="text-lg font-bold">Request a Meal</h3>
+           <p className="text-sm text-white mt-1">Post a specific request for what you need.</p>
         </button>
       </div>
 
@@ -1616,9 +1616,9 @@ function AppContent() {
         <div className="p-6">
           {filteredItems.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
-              <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-slate-600" />
-              </div>
+                    <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FileText className="h-8 w-8 text-slate-600" />
+                    </div>
               <p className="text-lg font-medium">
                 No {dashboardTab === 'ACTIVE' ? 'active' : 'past'} requests.
               </p>
@@ -1902,9 +1902,9 @@ function AppContent() {
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 animate-in slide-in-from-bottom-4 duration-700 drop-shadow-sm">
             Share a Meal, <span className="text-white">Fuel a Future.</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-xl text-white/95 mb-10 animate-in slide-in-from-bottom-5 duration-700 delay-100 font-medium">
-            Connecting university students with home-cooked meals from generous neighbors. Private,
-            secure, and always free.
+          <p className="max-w-2xl mx-auto text-xl text-white mb-10 animate-in slide-in-from-bottom-5 duration-700 delay-100 font-medium">
+            Connecting university students with home-cooked meals from generous neighbors.
+            Private, secure, and always free.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in slide-in-from-bottom-6 duration-700 delay-200">
             <button

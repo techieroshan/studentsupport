@@ -260,7 +260,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
   const renderRegisterForm = () => (
     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
       <div className="space-y-4">
-        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Choose your Avatar (Masked Identity)</label>
+        <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">Choose your Avatar (Masked Identity)</label>
         <div className="flex gap-3 overflow-x-auto pb-2">
           {AVATARS.map((url, idx) => (
             <button
@@ -299,7 +299,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 uppercase">
             {targetRole === UserRole.SEEKER ? 'University Email' : 'Email Address'}
           </label>
           <div className="relative">
@@ -348,7 +348,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         </div>
         
         <div className="mb-2">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Country</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Country</label>
             <div className="relative">
                 <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                 <select 
@@ -362,7 +362,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         </div>
 
         <div className="mb-2">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Street Address</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Full Street Address</label>
             <div className="relative">
                 <Home className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
             <input 
@@ -378,7 +378,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
 
         <div className="grid grid-cols-3 gap-3">
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">City</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">City</label>
               <input 
                 type="text" 
                 value={formData.city}
@@ -388,7 +388,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
               />
            </div>
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">State/Prov</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">State/Prov</label>
               <input 
                 type="text" 
                 value={formData.state}
@@ -398,7 +398,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
               />
            </div>
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Zip</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Zip</label>
               <input 
                 type="text" 
                 value={formData.zip}
@@ -411,7 +411,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
       </div>
       
       <div>
-         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase flex items-center">
+         <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-2 uppercase flex items-center">
             <Languages className="h-4 w-4 mr-1 text-slate-500" /> Languages Spoken
          </label>
          <div className="relative" ref={dropdownRef}>

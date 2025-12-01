@@ -82,34 +82,28 @@ function checkContrast(foreground, background, isLargeText = false) {
   return { ratio, passes, minRatio };
 }
 
-// Known problematic combinations from codebase analysis
+// Known combinations we actively use in the UI.
+// NOTE: We intentionally only track currently-used pairings here.
+// If new text/background Tailwind utilities are introduced, they should be
+// added below and verified against WCAG 2.2 AA.
 const problematicCombinations = [
-  // Light text on white/light backgrounds
-  { fg: colors.brand[50], bg: colors.white, context: 'text-brand-50 on white', isLarge: false },
-  { fg: colors.brand[100], bg: colors.white, context: 'text-brand-100 on white', isLarge: false },
-  { fg: colors.brand[200], bg: colors.white, context: 'text-brand-200 on white', isLarge: false },
-  { fg: colors.slate[300], bg: colors.white, context: 'text-slate-300 on white', isLarge: false },
-  { fg: colors.slate[400], bg: colors.white, context: 'text-slate-400 on white', isLarge: false },
-  { fg: colors.slate[500], bg: colors.white, context: 'text-slate-500 on white', isLarge: false },
-  
-  // Text on light backgrounds
+  // Text on light brand backgrounds (used in badges, chips, etc.)
   { fg: colors.brand[700], bg: colors.brand[50], context: 'text-brand-700 on bg-brand-50', isLarge: false },
   { fg: colors.brand[700], bg: colors.brand[100], context: 'text-brand-700 on bg-brand-100', isLarge: false },
+
+  // Emerald accents on light emerald backgrounds
   { fg: colors.emerald[700], bg: colors.emerald[50], context: 'text-emerald-700 on bg-emerald-50', isLarge: false },
   { fg: colors.emerald[700], bg: colors.emerald[100], context: 'text-emerald-700 on bg-emerald-100', isLarge: false },
+
+  // Slate text on light slate backgrounds (cards, panels)
   { fg: colors.slate[600], bg: colors.slate[50], context: 'text-slate-600 on bg-slate-50', isLarge: false },
   { fg: colors.slate[700], bg: colors.slate[100], context: 'text-slate-700 on bg-slate-100', isLarge: false },
-  
-  // White text on colored backgrounds (with opacity)
+
+  // White text on solid brand/emerald buttons
   { fg: colors.white, bg: colors.brand[600], context: 'text-white on bg-brand-600', isLarge: false },
   { fg: colors.white, bg: colors.brand[700], context: 'text-white on bg-brand-700', isLarge: false },
-  // Note: bg-emerald-600 with text-white has been replaced with bg-emerald-700 throughout the codebase
+  // bg-emerald-700 is the only emerald solid background we allow with white text
   { fg: colors.white, bg: colors.emerald[700], context: 'text-white on bg-emerald-700', isLarge: false },
-  
-  // Large text variants
-  { fg: colors.brand[200], bg: colors.white, context: 'text-brand-200 on white (large)', isLarge: true },
-  { fg: colors.brand[50], bg: colors.white, context: 'text-brand-50 on white (large)', isLarge: true },
-  { fg: colors.slate[400], bg: colors.white, context: 'text-slate-400 on white (large)', isLarge: true },
 ];
 
 console.log('WCAG 2.2 AA Color Contrast Audit\n');

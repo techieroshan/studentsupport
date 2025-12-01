@@ -66,7 +66,7 @@ const HowItWorksPage: React.FC = () => {
          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-10"></div>
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6">How It Works</h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-100 max-w-2xl mx-auto">
                A simple, safe, and transparent process to connect students in need with generous neighbors.
             </p>
          </div>
@@ -77,7 +77,7 @@ const HowItWorksPage: React.FC = () => {
             <button
               role="tab" 
               onClick={() => setActiveTab('STUDENT')}
-              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'STUDENT' ? 'bg-brand-600 text-white shadow-md' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
+              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'STUDENT' ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
               aria-pressed={activeTab === 'STUDENT'}
             >
                I'm a Student
@@ -85,7 +85,7 @@ const HowItWorksPage: React.FC = () => {
             <button 
               role="tab"
               onClick={() => setActiveTab('DONOR')}
-              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'DONOR' ? 'bg-emerald-700 text-white shadow-md' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
+              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'DONOR' ? 'bg-emerald-700 text-white shadow-md' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
               aria-pressed={activeTab === 'DONOR'}
             >
                I'm a Donor

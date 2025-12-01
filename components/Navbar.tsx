@@ -54,16 +54,16 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-             <button onClick={() => onNavigate('how-it-works')} className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
+             <button onClick={() => onNavigate('how-it-works')} className="text-sm font-bold text-slate-700 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
                 How It Works
              </button>
-             <button onClick={() => onNavigate('faq')} className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors flex items-center">
+             <button onClick={() => onNavigate('faq')} className="text-sm font-bold text-slate-700 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors flex items-center">
                 FAQ
              </button>
-             <button onClick={() => onNavigate('donors')} className="text-sm font-bold text-slate-600 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
+             <button onClick={() => onNavigate('donors')} className="text-sm font-bold text-slate-700 hover:text-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
                 Donors
              </button>
-             <button onClick={() => onNavigate('browse')} className="text-sm font-bold text-slate-600 hover:text-brand-700 flex items-center focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
+             <button onClick={() => onNavigate('browse')} className="text-sm font-bold text-slate-700 hover:text-brand-700 flex items-center focus:outline-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 transition-colors">
                 <Map className="h-4 w-4 mr-1"/> Browse
              </button>
              
@@ -118,6 +118,7 @@ const Navbar: React.FC<Props> = ({ currentUser, onLogout, onNavigate, onUpdateLo
                 <button 
                   onClick={() => onNavigate('login-donor')}
                   className="px-5 py-2.5 text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow-md hover:shadow-lg transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-600 selection:bg-brand-700 selection:text-white"
+                  aria-label="Browse meal requests and help students in need"
                 >
                   I Want to Help
                 </button>
