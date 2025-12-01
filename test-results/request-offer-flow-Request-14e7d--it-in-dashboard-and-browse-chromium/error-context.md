@@ -1,0 +1,201 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e6]:
+      - button "Student Support Home" [ref=e7] [cursor=pointer]:
+        - img [ref=e9]
+        - generic [ref=e11]:
+          - heading "StudentSupport" [level=1] [ref=e12]
+          - paragraph [ref=e13]: New Abilities Foundation
+      - generic [ref=e14]:
+        - button "How It Works" [ref=e15]
+        - button "FAQ" [ref=e16]
+        - button "Donors" [ref=e17]
+        - button "Browse" [ref=e18]:
+          - img [ref=e19]
+          - text: Browse
+        - generic [ref=e21]:
+          - button "Student Login" [ref=e22]
+          - button "Browse meal requests and help students in need" [ref=e23]: I Want to Help
+  - link "Skip to main content" [ref=e24] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e25]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - img "Students sharing meals together" [ref=e29]
+        - generic [ref=e31]:
+          - heading "Share a Meal, Fuel a Future." [level=1] [ref=e32]
+          - paragraph [ref=e33]: Connecting university students with home-cooked meals from generous neighbors. Private, secure, and always free.
+          - generic [ref=e34]:
+            - button "Register or login as a student" [ref=e35]: I'm a Student
+            - button "Register or login as a donor" [ref=e36]: I Want to Donate
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - paragraph [ref=e39]: 10k+
+              - paragraph [ref=e40]: Meals Shared
+            - generic [ref=e42]:
+              - paragraph [ref=e43]: 50+
+              - paragraph [ref=e44]: Universities
+            - generic [ref=e46]:
+              - paragraph [ref=e47]: 100%
+              - paragraph [ref=e48]: Non-Profit
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - generic [ref=e51] [cursor=pointer]:
+            - img [ref=e53]
+            - heading "Request a Meal" [level=2] [ref=e56]
+            - paragraph [ref=e57]: Living >30 miles from home? Verified students can request free, nutritious meals.
+            - button "I Need Food" [ref=e58]
+          - generic [ref=e59] [cursor=pointer]:
+            - img [ref=e61]
+            - heading "Share a Meal" [level=2] [ref=e64]
+            - paragraph [ref=e65]: Cooked extra? Share your home-cooked food with a verified student nearby.
+            - button "Post Meal Offer" [ref=e66]
+          - generic [ref=e67] [cursor=pointer]:
+            - img [ref=e69]
+            - heading "Browse Requests" [level=2] [ref=e71]
+            - paragraph [ref=e72]: See who needs help in your city and offer to fulfill a specific request.
+            - button "Browse meal requests and help students in need" [ref=e73]: I Want to Help
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - heading "Community Voices" [level=2] [ref=e77]
+            - paragraph [ref=e78]: Real Stories, Real Impact
+            - paragraph [ref=e79]: See how a simple meal can bridge the distance between home and university.
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - img [ref=e82]
+              - generic [ref=e85]:
+                - generic [ref=e86]:
+                  - img "Alex M." [ref=e87]
+                  - generic [ref=e88]:
+                    - heading "Alex M." [level=4] [ref=e89]
+                    - paragraph [ref=e90]: San Jose, CA • SEEKER
+                - generic [ref=e91]:
+                  - img [ref=e92]
+                  - img [ref=e94]
+                  - img [ref=e96]
+                  - img [ref=e98]
+                  - img [ref=e100]
+                - paragraph [ref=e102]: "\"Being 2,000 miles from home, I missed my mom's cooking. The warm vegan curry I received from Sarah didn't just fill my stomach, it warmed my heart during finals week.\""
+              - generic [ref=e103]: 11/30/2025
+            - generic [ref=e104]:
+              - img [ref=e105]
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - img "Mrs. Patel" [ref=e110]
+                  - generic [ref=e111]:
+                    - heading "Mrs. Patel" [level=4] [ref=e112]
+                    - paragraph [ref=e113]: Fremont, CA • DONOR
+                - generic [ref=e114]:
+                  - img [ref=e115]
+                  - img [ref=e117]
+                  - img [ref=e119]
+                  - img [ref=e121]
+                  - img [ref=e123]
+                - paragraph [ref=e125]: "\"I cook fresh Jain meals every day for my family. Making two extra portions for a student nearby is effortless for me but means the world to them.\""
+              - generic [ref=e126]: 11/29/2025
+            - generic [ref=e127]:
+              - img [ref=e128]
+              - generic [ref=e131]:
+                - generic [ref=e132]:
+                  - img "Jordan K." [ref=e133]
+                  - generic [ref=e134]:
+                    - heading "Jordan K." [level=4] [ref=e135]
+                    - paragraph [ref=e136]: Santa Clara, CA • SEEKER
+                - generic [ref=e137]:
+                  - img [ref=e138]
+                  - img [ref=e140]
+                  - img [ref=e142]
+                  - img [ref=e144]
+                  - img [ref=e146]
+                - paragraph [ref=e148]: "\"I was hesitant to ask for help, but the anonymity made me feel safe. The process was respectful, and the food was delicious. Thank you!\""
+              - generic [ref=e149]: 11/28/2025
+        - generic [ref=e151]:
+          - heading "Frequently Asked Questions" [level=2] [ref=e152]
+          - generic [ref=e153]:
+            - generic [ref=e154]:
+              - heading "Who is eligible to request meals?" [level=3] [ref=e155]:
+                - img [ref=e156]
+                - text: Who is eligible to request meals?
+              - paragraph [ref=e159]: Any currently enrolled university student living at least 30 miles away from their permanent home address. We verify enrollment via .edu email and location via geolocation.
+            - generic [ref=e160]:
+              - heading "Is this safe?" [level=3] [ref=e161]:
+                - img [ref=e162]
+                - text: Is this safe?
+              - paragraph [ref=e165]: Safety is our priority. All users (Students and Donors) must complete identity verification. Profiles are masked until a match is confirmed, and we provide secure chat for coordination.
+            - generic [ref=e166]:
+              - heading "Does it cost anything?" [level=3] [ref=e167]:
+                - img [ref=e168]
+                - text: Does it cost anything?
+              - paragraph [ref=e171]: No. The platform is completely free for students. Meals are generously gifted by community donors.
+            - generic [ref=e172]:
+              - heading "Can I request specific dietary meals?" [level=3] [ref=e173]:
+                - img [ref=e174]
+                - text: Can I request specific dietary meals?
+              - paragraph [ref=e177]: Yes! You can specify preferences like Vegan, Halal, Jain, Gluten-Free, etc. Donors also tag their offers with these attributes.
+            - generic [ref=e178]:
+              - heading "How do I pick up the food?" [level=3] [ref=e179]:
+                - img [ref=e180]
+                - text: How do I pick up the food?
+              - paragraph [ref=e183]: Once matched, you coordinate with the donor via secure chat. Options include pickup, donor drop-off, or meeting in a public spot.
+            - generic [ref=e184]:
+              - heading "I'm not a student, can I get help?" [level=3] [ref=e185]:
+                - img [ref=e186]
+                - text: I'm not a student, can I get help?
+              - paragraph [ref=e189]: Currently, our charter focuses specifically on university students living away from home. We hope to expand in the future.
+  - contentinfo [ref=e190]:
+    - generic [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - img [ref=e196]
+          - generic [ref=e198]: New Abilities Foundation
+        - paragraph [ref=e199]: A 501(c)(3) Non-profit organization empowering students and communities. This portal connects students in need with generous neighbors. No money changes hands—just kindness and nutrition.
+      - generic [ref=e200]:
+        - heading "Links" [level=3] [ref=e201]
+        - list "Links" [ref=e202]:
+          - listitem [ref=e203]:
+            - link "About Us" [ref=e204] [cursor=pointer]:
+              - /url: https://newabilities.org/about
+          - listitem [ref=e205]:
+            - button "View our donors page" [ref=e206]: Our Donors
+          - listitem [ref=e207]:
+            - link "Donate" [ref=e208] [cursor=pointer]:
+              - /url: https://newabilities.org/donate
+          - listitem [ref=e209]:
+            - button "View privacy policy" [ref=e210]: Privacy Policy
+          - listitem [ref=e211]:
+            - button "View terms of use" [ref=e212]: Terms of Use
+      - generic [ref=e213]:
+        - heading "Contact" [level=3] [ref=e214]
+        - list "Contact" [ref=e215]:
+          - listitem [ref=e216]:
+            - link "Contact Support" [ref=e217] [cursor=pointer]:
+              - /url: https://newabilities.org/contact
+          - listitem [ref=e218]: +1 (682) 432-9400
+          - listitem [ref=e219]: 1320 Pepperhill Ln
+          - listitem [ref=e220]: Fort Worth, TX, 76131
+    - generic [ref=e222]:
+      - paragraph [ref=e223]: Supported by our Platinum & Gold Partners
+      - generic [ref=e224]:
+        - generic "Zakat Foundation of America" [ref=e225]:
+          - img "Zakat Foundation of America logo" [ref=e226]
+        - generic "Sri Venkateswara Temple" [ref=e227]:
+          - img "Sri Venkateswara Temple logo" [ref=e228]
+        - generic "City of Fremont" [ref=e229]:
+          - img "City of Fremont logo" [ref=e230]
+        - generic "Dr. Anand Patel" [ref=e231]:
+          - img "Dr. Anand Patel logo" [ref=e232]
+        - generic "Anonymous" [ref=e233]:
+          - generic "Anonymous" [ref=e234]
+        - generic "Sri Lakshmi Temple" [ref=e235]:
+          - img "Sri Lakshmi Temple logo" [ref=e236]
+        - generic "City of Austin - Sustainability" [ref=e237]:
+          - img "City of Austin - Sustainability logo" [ref=e238]
+        - generic "Sikh Gurudwara of Triangle" [ref=e239]:
+          - img "Sikh Gurudwara of Triangle logo" [ref=e240]
+        - generic "Tata Consultancy Services" [ref=e241]:
+          - img "Tata Consultancy Services logo" [ref=e242]
+    - generic [ref=e243]: © 2025 New Abilities Foundation. All rights reserved.
+```
