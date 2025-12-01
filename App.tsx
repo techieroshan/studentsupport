@@ -946,7 +946,7 @@ function App() {
               <PlusCircle className="h-6 w-6 text-white" />
            </div>
            <h3 className="text-lg font-bold">Request a Meal</h3>
-           <p className="text-sm text-brand-100 mt-1">Post a specific request for what you need.</p>
+           <p className="text-sm text-white mt-1">Post a specific request for what you need.</p>
         </button>
       </div>
 
@@ -1177,9 +1177,9 @@ function App() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 animate-in slide-in-from-bottom-4 duration-700 drop-shadow-sm">
-            Share a Meal, <span className="text-brand-200">Fuel a Future.</span>
+            Share a Meal, <span className="text-white">Fuel a Future.</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-xl text-brand-50 mb-10 animate-in slide-in-from-bottom-5 duration-700 delay-100 font-medium">
+          <p className="max-w-2xl mx-auto text-xl text-white mb-10 animate-in slide-in-from-bottom-5 duration-700 delay-100 font-medium">
             Connecting university students with home-cooked meals from generous neighbors. 
             Private, secure, and always free.
           </p>
