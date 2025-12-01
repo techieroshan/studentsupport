@@ -67,6 +67,12 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
   });
   const [errors, setErrors] = useState<Partial<Record<keyof OnboardingData, string>>>({});
 
+  // High-contrast, WCAG-friendly input styles (same in light/dark mode)
+  const inputBaseClass =
+    'w-full rounded-lg border px-3 py-2 text-sm bg-white text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500';
+  const inputClass = (hasError?: boolean) =>
+    `${inputBaseClass} ${hasError ? 'border-red-600' : 'border-slate-300'}`;
+
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -79,6 +85,57 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !processing) {
+        onCancel();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onCancel, processing]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal || processing) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, [processing, authMode, awaitingEmail]);
 
   const verificationSteps = targetRole === UserRole.SEEKER 
     ? [
@@ -203,7 +260,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
   const renderRegisterForm = () => (
     <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 pb-2">
       <div className="space-y-4">
-        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Choose your Avatar (Masked Identity)</label>
+        <label className="block text-sm font-bold text-slate-800 dark:text-slate-200">Choose your Avatar (Masked Identity)</label>
         <div className="flex gap-3 overflow-x-auto pb-2">
           {AVATARS.map((url, idx) => (
             <button
@@ -242,7 +299,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">
+          <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 uppercase">
             {targetRole === UserRole.SEEKER ? 'University Email' : 'Email Address'}
           </label>
           <div className="relative">
@@ -251,7 +308,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
               type="email" 
               value={formData.email}
               onChange={e => setFormData({...formData, email: e.target.value})}
-              className={`w-full bg-white dark:bg-slate-800 pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.email ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+              className={`${inputClass(!!errors.email)} pl-9`}
               placeholder={targetRole === UserRole.SEEKER ? "student@university.edu" : "you@example.com"}
             />
           </div>
@@ -266,7 +323,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
               type="tel" 
               value={formData.phone}
               onChange={e => setFormData({...formData, phone: e.target.value})}
-              className={`w-full bg-white dark:bg-slate-800 pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.phone ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+              className={`${inputClass(!!errors.phone)} pl-9`}
               placeholder="(555) 123-4567"
             />
           </div>
@@ -291,7 +348,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         </div>
         
         <div className="mb-2">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Country</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Country</label>
             <div className="relative">
                 <Globe className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                 <select 
@@ -305,14 +362,14 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
         </div>
 
         <div className="mb-2">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Street Address</label>
+            <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Full Street Address</label>
             <div className="relative">
                 <Home className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-                <input 
+            <input 
                   type="text" 
                   value={formData.address}
                   onChange={e => setFormData({...formData, address: e.target.value})}
-                  className={`w-full bg-white dark:bg-slate-900 pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.address ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+                  className={`${inputClass(!!errors.address)} pl-9`}
                   placeholder="123 Campus Dr, Apt 4B"
                 />
             </div>
@@ -321,32 +378,32 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
 
         <div className="grid grid-cols-3 gap-3">
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">City</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">City</label>
               <input 
                 type="text" 
                 value={formData.city}
                 onChange={e => setFormData({...formData, city: e.target.value})}
-                className={`w-full bg-white dark:bg-slate-900 px-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.city ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+                className={inputClass(!!errors.city)}
                 placeholder="San Jose"
               />
            </div>
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">State/Prov</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">State/Prov</label>
               <input 
                 type="text" 
                 value={formData.state}
                 onChange={e => setFormData({...formData, state: e.target.value})}
-                className={`w-full bg-white dark:bg-slate-900 px-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.state ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+                className={inputClass(!!errors.state)}
                 placeholder="CA"
               />
            </div>
            <div className="col-span-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Zip</label>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">Zip</label>
               <input 
                 type="text" 
                 value={formData.zip}
                 onChange={e => setFormData({...formData, zip: e.target.value})}
-                className={`w-full bg-white dark:bg-slate-900 px-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.zip ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+                className={inputClass(!!errors.zip)}
                 placeholder="95112"
               />
            </div>
@@ -354,7 +411,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
       </div>
       
       <div>
-         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase flex items-center">
+         <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-2 uppercase flex items-center">
             <Languages className="h-4 w-4 mr-1 text-slate-500" /> Languages Spoken
          </label>
          <div className="relative" ref={dropdownRef}>
@@ -404,7 +461,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
               type="text" 
               value={formData.displayName}
               onChange={e => setFormData({...formData, displayName: e.target.value})}
-              className="w-full bg-white dark:bg-slate-800 pl-9 pr-3 py-2 border border-slate-400 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none"
+              className={`${inputBaseClass} pl-9`}
             />
          </div>
       </div>
@@ -415,24 +472,26 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
     <div className="space-y-6 py-4">
       
       {/* Demo Credentials Helper */}
-      <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3">
-         <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 text-center">One-Click Demo Login</p>
-         <div className="flex gap-2">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+         <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 text-center tracking-wide">
+           ONE-CLICK DEMO LOGIN
+         </p>
+         <div className="flex gap-3">
             <button 
                 onClick={() => fillDemo('admin@newabilities.org', 'password')}
-                className="flex-1 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded"
+                className="flex-1 py-2.5 rounded-lg text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-800"
             >
                 Admin
             </button>
             <button 
                 onClick={() => fillDemo('student@university.edu', 'password')}
-                className="flex-1 py-1.5 bg-brand-100 dark:bg-brand-900/30 hover:bg-brand-200 dark:hover:bg-brand-900/50 text-brand-700 dark:text-brand-300 text-xs font-bold rounded"
+                className="flex-1 py-2.5 rounded-lg text-xs font-bold bg-brand-100 hover:bg-brand-200 text-brand-700 border border-brand-200 shadow-sm"
             >
                 Student
             </button>
             <button 
                 onClick={() => fillDemo('donor@gmail.com', 'password')}
-                className="flex-1 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-bold rounded"
+                className="flex-1 py-2.5 rounded-lg text-xs font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-700"
             >
                 Donor
             </button>
@@ -447,7 +506,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
             type="email" 
             value={formData.email}
             onChange={e => setFormData({...formData, email: e.target.value})}
-            className={`w-full bg-white dark:bg-slate-800 pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.email ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+            className={`${inputClass(!!errors.email)} pl-9`}
             placeholder="you@example.com"
           />
         </div>
@@ -459,7 +518,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
           type="password" 
           value={formData.password}
           onChange={e => setFormData({...formData, password: e.target.value})}
-          className="w-full bg-white dark:bg-slate-800 px-3 py-2 border border-slate-400 dark:border-slate-600 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none"
+          className={inputBaseClass}
           placeholder="••••••••"
         />
       </div>
@@ -515,7 +574,7 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
                         type="email" 
                         value={formData.email}
                         onChange={e => setFormData({...formData, email: e.target.value})}
-                        className={`w-full bg-white dark:bg-slate-800 pl-9 pr-3 py-2 border rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-brand-500 outline-none ${errors.email ? 'border-red-600' : 'border-slate-400 dark:border-slate-600'}`}
+                        className={`${inputClass(!!errors.email)} pl-9`}
                         placeholder="you@example.com"
                     />
                     </div>
@@ -546,35 +605,47 @@ const AuthModal: React.FC<Props> = ({ initialMode, targetRole, onComplete, onCan
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-lg w-full p-6 md:p-8 relative overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full p-6 md:p-10 relative overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}
         <div className="mb-6">
            <div className="flex items-center justify-center mb-4">
-              <div className="bg-brand-100 dark:bg-brand-900/30 p-2 rounded-full">
-                {authMode === 'FORGOT_PASSWORD' ? <KeyRound className="h-6 w-6 text-brand-700 dark:text-brand-300" /> : <ShieldCheck className="h-6 w-6 text-brand-700 dark:text-brand-300" />}
+              <div className="bg-brand-50 p-3 rounded-full border border-brand-100">
+                {authMode === 'FORGOT_PASSWORD' ? (
+                  <KeyRound className="h-6 w-6 text-brand-700" />
+                ) : (
+                  <ShieldCheck className="h-6 w-6 text-brand-700" />
+                )}
               </div>
            </div>
-           
+
            {!awaitingEmail && authMode !== 'FORGOT_PASSWORD' && (
-            <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4">
+            <div className="flex border-b border-slate-200 mb-4">
                 <button 
                     onClick={() => { setErrors({}); setAuthMode('LOGIN'); }}
-                    className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'LOGIN' ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-600 dark:border-brand-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                    className={`flex-1 pb-2 text-sm font-bold transition ${
+                      authMode === 'LOGIN'
+                        ? 'text-brand-600 border-b-2 border-brand-600'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
                 >
                     Log In
                 </button>
                 <button 
                     onClick={() => { setErrors({}); setAuthMode('REGISTER'); }}
-                    className={`flex-1 pb-2 text-sm font-bold transition ${authMode === 'REGISTER' ? 'text-brand-600 dark:text-brand-400 border-b-2 border-brand-600 dark:border-brand-400' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                    className={`flex-1 pb-2 text-sm font-bold transition ${
+                      authMode === 'REGISTER'
+                        ? 'text-brand-600 border-b-2 border-brand-600'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
                 >
                     Join (Verification)
                 </button>
             </div>
            )}
            
-           <h2 className="text-xl font-bold text-center text-slate-900 dark:text-white">
+           <h2 id="auth-modal-title" className="text-xl font-bold text-center text-slate-900 dark:text-white">
              {awaitingEmail ? 'Check Your Email' : authMode === 'LOGIN' ? 'Welcome Back' : authMode === 'REGISTER' ? 'Secure Verification' : 'Reset Password'}
            </h2>
         </div>

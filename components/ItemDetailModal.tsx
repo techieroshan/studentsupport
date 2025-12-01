@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MealRequest, MealOffer, UserRole, VerificationStatus, DietaryPreference } from '../types';
 import { X, MapPin, User, Utensils, Calendar, Clock, ArrowRight, Repeat, Flag, Truck, Languages } from 'lucide-react';
 import VerificationBadge from './VerificationBadge';
@@ -57,7 +57,7 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
   if (status === 'IN_PROGRESS') {
       if (isOwner || (userRole === UserRole.DONOR && isRequest) || (userRole === UserRole.SEEKER && !isRequest)) {
           actionLabel = 'Secure Chat & Verify';
-          actionColor = 'bg-emerald-600 hover:bg-emerald-700';
+          actionColor = 'bg-emerald-700 hover:bg-emerald-800';
       } else {
           showAction = false;
       }
@@ -68,7 +68,7 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
         actionColor = 'bg-brand-600 hover:bg-brand-700';
       } else if (userRole === UserRole.SEEKER && !isRequest) {
         actionLabel = 'Connect & Claim';
-        actionColor = 'bg-emerald-600 hover:bg-emerald-700';
+        actionColor = 'bg-emerald-700 hover:bg-emerald-800';
       } else if (userRole !== 'GUEST' && !isOwner) {
         actionLabel = 'Contact Support'; 
         actionColor = 'bg-slate-500 cursor-not-allowed';
@@ -83,8 +83,65 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
 
   const medicalItems = isRequest ? (item as MealRequest).medicalNeeds : (item as MealOffer).medicalTags;
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  // Focus trap: keep focus within modal
+  const modalRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleTab);
+    firstElement.focus();
+
+    return () => {
+      modal.removeEventListener('keydown', handleTab);
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div 
+      ref={modalRef}
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" 
+      role="dialog" 
+      aria-modal="true"
+      aria-labelledby="item-detail-modal-title"
+    >
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
         
         {/* Header */}
@@ -233,7 +290,7 @@ const ItemDetailModal: React.FC<Props> = ({ item, userRole, onClose, onAction, o
              )}
 
              <div className="flex justify-center pt-2">
-                <button onClick={onFlag} className="text-xs text-slate-400 hover:text-red-500 font-medium flex items-center">
+                <button onClick={onFlag} className="text-xs text-slate-600 hover:text-red-600 font-medium flex items-center">
                    <Flag className="h-3 w-3 mr-1" /> Report / Flag Transaction
                 </button>
              </div>

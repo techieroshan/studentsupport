@@ -62,60 +62,66 @@ const HowItWorksPage: React.FC = () => {
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
       {/* Hero */}
-      <div className="bg-slate-900 text-white py-20 relative overflow-hidden">
+      <header className="bg-slate-900 text-white py-20 relative overflow-hidden" role="banner">
          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')] bg-cover bg-center opacity-10"></div>
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6">How It Works</h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-100 max-w-2xl mx-auto">
                A simple, safe, and transparent process to connect students in need with generous neighbors.
             </p>
          </div>
-      </div>
+      </header>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-         <div className="bg-white rounded-2xl shadow-xl p-2 inline-flex space-x-2 mb-12">
-            <button 
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10" role="main">
+         <div className="bg-white rounded-2xl shadow-xl p-2 inline-flex space-x-2 mb-12" role="tablist" aria-label="Select user type">
+            <button
+              role="tab" 
               onClick={() => setActiveTab('STUDENT')}
-              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'STUDENT' ? 'bg-brand-600 text-white shadow-md' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
+              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'STUDENT' ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
+              aria-pressed={activeTab === 'STUDENT'}
             >
                I'm a Student
             </button>
             <button 
+              role="tab"
               onClick={() => setActiveTab('DONOR')}
-              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'DONOR' ? 'bg-emerald-600 text-white shadow-md' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
+              className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'DONOR' ? 'bg-emerald-700 text-white shadow-md' : 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50'}`}
+              aria-pressed={activeTab === 'DONOR'}
             >
                I'm a Donor
             </button>
          </div>
 
-         <div className="space-y-8">
+         <section className="space-y-8" aria-label="Registration steps">
             {steps.map((step, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center md:items-start text-center md:text-left animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
+                <article key={idx} className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 flex flex-col md:flex-row items-center md:items-start text-center md:text-left animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
                     <div className={`flex-shrink-0 p-4 rounded-full mb-4 md:mb-0 md:mr-8 ${activeTab === 'STUDENT' ? 'bg-brand-50 text-brand-600' : 'bg-emerald-50 text-emerald-600'}`}>
                         <step.icon className="h-8 w-8" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
+                        <h2 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h2>
                         <p className="text-slate-600 leading-relaxed">
                             {step.desc}
                         </p>
                     </div>
-                </div>
+                </article>
             ))}
-         </div>
+         </section>
 
-         <div className="mt-16 text-center bg-brand-50 rounded-3xl p-10 border border-brand-100">
-             <h3 className="text-2xl font-bold text-brand-900 mb-4">Ready to get started?</h3>
+         <section className="mt-16 text-center bg-brand-50 rounded-3xl p-10 border border-brand-100" aria-labelledby="cta-heading">
+             <h2 id="cta-heading" className="text-2xl font-bold text-brand-900 mb-4">Ready to get started?</h2>
              <p className="text-brand-700 mb-8 max-w-xl mx-auto">
                 Join thousands of verified community members making a difference today.
              </p>
              <div className="flex justify-center space-x-4">
-                 <button className="px-6 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition shadow-lg">
+                 <button 
+                   className="px-6 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                 >
                     {activeTab === 'STUDENT' ? 'Register as Student' : 'Register as Donor'}
                  </button>
              </div>
-         </div>
-      </div>
+         </section>
+      </main>
     </div>
   );
 };

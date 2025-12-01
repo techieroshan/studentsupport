@@ -1051,7 +1051,7 @@ function App() {
              </button>
              <button
                onClick={() => handleNavigate('post-offer')}
-               className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition shadow-md"
+               className="flex items-center px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-bold hover:bg-emerald-800 transition shadow-md"
              >
                 <PlusCircle className="h-4 w-4 mr-2" /> Donate Meal
              </button>
@@ -1239,7 +1239,7 @@ function App() {
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Share a Meal</h3>
               <p className="text-slate-600 mb-6 flex-grow">Cooked extra? Share your home-cooked food with a verified student nearby.</p>
-              <button className="w-full py-3 rounded-xl font-bold bg-emerald-600 text-white shadow hover:bg-emerald-700">Post Meal Offer</button>
+              <button className="w-full py-3 rounded-xl font-bold bg-emerald-700 text-white shadow hover:bg-emerald-800">Post Meal Offer</button>
            </div>
 
            <div 
@@ -1251,7 +1251,7 @@ function App() {
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Browse Requests</h3>
               <p className="text-slate-600 mb-6 flex-grow">See who needs help in your city and offer to fulfill a specific request.</p>
-              <button className="w-full py-3 rounded-xl font-bold bg-accent-600 text-white shadow hover:bg-accent-700">I Want to Help</button>
+              <button className="w-full py-3 rounded-xl font-bold bg-brand-600 text-white shadow hover:bg-brand-700">I Want to Help</button>
            </div>
         </div>
         
