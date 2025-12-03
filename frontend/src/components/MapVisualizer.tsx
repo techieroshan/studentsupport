@@ -25,6 +25,7 @@ const MapVisualizer: React.FC<Props> = ({ items, center, userRole, onSelect, onV
   const markersRef = useRef<any[]>([]);
   const tileLayerRef = useRef<any>(null);
   const [isMapReady, setIsMapReady] = useState(false);
+  const [leafletError, setLeafletError] = useState<string | null>(null);
   
   // Use refs to store latest props/state to avoid stale closures in Leaflet event listeners
   const itemsRef = useRef(items);
@@ -178,8 +179,16 @@ const MapVisualizer: React.FC<Props> = ({ items, center, userRole, onSelect, onV
   };
 
   return (
-    <div className="relative w-full h-[500px] bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-inner z-0">
-      {!isMapReady && (
+    <div className="relative w-full min-h-[500px] h-full bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-inner z-0">
+      {leafletError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-900 z-10">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-red-600 mx-auto mb-2" />
+            <p className="text-sm text-red-500 font-medium">{leafletError}</p>
+          </div>
+        </div>
+      )}
+      {!isMapReady && !leafletError && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-900 z-10">
             <div className="text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-brand-600 dark:text-brand-400 mx-auto mb-2" />

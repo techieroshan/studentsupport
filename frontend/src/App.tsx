@@ -413,25 +413,39 @@ function App() {
   useEffect(() => {
     const loadBackendData = async () => {
       try {
+        // Helper to safely parse JSON or fallback
+        const safeJson = async (response: Response) => {
+          const text = await response.text();
+          try {
+            return JSON.parse(text);
+          } catch (err) {
+            if (text.startsWith('<!doctype')) {
+              showToast('Backend returned an error page. Please check backend URL or server status.');
+              return null;
+            }
+            throw err;
+          }
+        };
+
         // Load donors from backend
         const donorsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/donors`);
         if (donorsResponse.ok) {
-          const donorsData = await donorsResponse.json();
-          setDonors(donorsData);
+          const donorsData = await safeJson(donorsResponse);
+          if (donorsData) setDonors(donorsData);
         }
 
         // Load requests
         const requestsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/requests`);
         if (requestsResponse.ok) {
-          const requestsData = await requestsResponse.json();
-          setRequests(requestsData);
+          const requestsData = await safeJson(requestsResponse);
+          if (requestsData) setRequests(requestsData);
         }
 
         // Load offers
         const offersResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/offers`);
         if (offersResponse.ok) {
-          const offersData = await offersResponse.json();
-          setOffers(offersData);
+          const offersData = await safeJson(offersResponse);
+          if (offersData) setOffers(offersData);
         }
 
         // Check if user is already logged in
@@ -441,6 +455,7 @@ function App() {
         }
       } catch (error) {
         console.error('Error loading backend data:', error);
+        showToast('Error loading backend data. Using demo data.');
         // Keep mock data as fallback
       }
     };
