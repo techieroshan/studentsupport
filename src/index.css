@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Improve text selection contrast globally (WCAG 2.2 AA) */
+::selection {
+  background-color: #1d4ed8; /* brand-700 */
+  color: #ffffff;
+}
+
+/* Ensure "I Want to Help" button has proper contrast (WCAG 2.2 AA compliance) */
+#i-want-to-help-button,
+button[aria-label="Browse meal requests and help students in need"] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+#i-want-to-help-button:hover,
+button[aria-label="Browse meal requests and help students in need"]:hover {
+  background-color: #1d4ed8 !important;
+}
+
+
+
+
+

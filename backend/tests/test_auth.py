@@ -1,261 +1,111 @@
-"""Tests for authentication endpoints."""
+"""
+Tests for authentication endpoints: registration and login
+"""
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from models import User, VerificationCode
+from fastapi import status
 
 
-class TestRegistration:
-    """Test user registration."""
-    
-    @pytest.mark.asyncio
-    async def test_register_new_user(self, client: AsyncClient, test_db: AsyncSession):
-        """Test registering a new user."""
-        response = await client.post(
-            "/api/auth/register",
-            json={
-                "email": "newuser@example.com",
-                "password": "securepassword123",
-                "display_name": "New User",
-                "role": "SEEKER",
-                "city": "New York",
-                "state": "NY",
-                "zip_code": "10001",
-                "country": "USA"
-            }
-        )
-        
-        assert response.status_code == 201
-        data = response.json()
-        assert data["email"] == "newuser@example.com"
-        assert data["display_name"] == "New User"
-        assert data["role"] == "SEEKER"
-        assert data["email_verified"] is False
-        assert "id" in data
-        
-        # Verify user was created in database
-        result = await test_db.execute(
-            select(User).where(User.email == "newuser@example.com")
-        )
-        user = result.scalar_one_or_none()
-        assert user is not None
-        
-        # Verify verification code was created
-        result = await test_db.execute(
-            select(VerificationCode).where(VerificationCode.user_id == user.id)
-        )
-        code = result.scalar_one_or_none()
-        assert code is not None
-        assert code.code_type == "email"
-    
-    @pytest.mark.asyncio
-    async def test_register_duplicate_email(self, client: AsyncClient, test_user: User):
-        """Test registering with duplicate email fails."""
-        response = await client.post(
-            "/api/auth/register",
-            json={
-                "email": "testuser@example.com",
-                "password": "password123",
-                "display_name": "Duplicate User",
-                "city": "Boston",
-                "state": "MA",
-                "zip_code": "02101",
-                "country": "USA"
-            }
-        )
-        
-        assert response.status_code == 400
-        assert "already registered" in response.json()["detail"].lower()
-    
-    @pytest.mark.asyncio
-    async def test_register_invalid_email(self, client: AsyncClient):
-        """Test registering with invalid email fails."""
-        response = await client.post(
-            "/api/auth/register",
-            json={
-                "email": "notanemail",
-                "password": "password123",
-                "display_name": "Invalid Email User",
-                "city": "Boston",
-                "state": "MA",
-                "zip_code": "02101",
-                "country": "USA"
-            }
-        )
-        
-        assert response.status_code == 422  # Validation error
+def test_register_student(client):
+    """Test student registration"""
+    response = client.post("/auth/register", json={
+        "email": "newstudent@university.edu",
+        "password": "securepass123",
+        "role": "SEEKER",
+        "display_name": "New Student",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95112",
+        "country": "United States"
+    })
+    assert response.status_code == status.HTTP_201_CREATED
+    data = response.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
 
 
-class TestEmailVerification:
-    """Test email verification."""
-    
-    @pytest.mark.asyncio
-    async def test_verify_email_success(self, client: AsyncClient, test_db: AsyncSession):
-        """Test successful email verification."""
-        # Register user first
-        response = await client.post(
-            "/api/auth/register",
-            json={
-                "email": "verify@example.com",
-                "password": "password123",
-                "display_name": "Verify User",
-                "city": "Austin",
-                "state": "TX",
-                "zip_code": "78701",
-                "country": "USA"
-            }
-        )
-        assert response.status_code == 201
-        
-        # Get verification code from database
-        result = await test_db.execute(
-            select(User).where(User.email == "verify@example.com")
-        )
-        user = result.scalar_one()
-        
-        result = await test_db.execute(
-            select(VerificationCode)
-            .where(VerificationCode.user_id == user.id)
-            .order_by(VerificationCode.created_at.desc())
-        )
-        code_obj = result.scalar_one()
-        
-        # Verify email
-        response = await client.post(
-            "/api/auth/verify-email",
-            json={
-                "email": "verify@example.com",
-                "code": code_obj.code
-            }
-        )
-        
-        assert response.status_code == 200
-        assert "verified successfully" in response.json()["message"].lower()
-        
-        # Check user is verified
-        await test_db.refresh(user)
-        assert user.email_verified is True
-    
-    @pytest.mark.asyncio
-    async def test_verify_email_invalid_code(self, client: AsyncClient, test_user: User):
-        """Test email verification with invalid code fails."""
-        response = await client.post(
-            "/api/auth/verify-email",
-            json={
-                "email": "testuser@example.com",
-                "code": "000000"
-            }
-        )
-        
-        assert response.status_code == 400
-        assert "invalid" in response.json()["detail"].lower()
-    
-    @pytest.mark.asyncio
-    async def test_verify_email_nonexistent_user(self, client: AsyncClient):
-        """Test email verification for nonexistent user fails."""
-        response = await client.post(
-            "/api/auth/verify-email",
-            json={
-                "email": "nonexistent@example.com",
-                "code": "123456"
-            }
-        )
-        
-        assert response.status_code == 404
+def test_register_donor(client):
+    """Test donor registration"""
+    response = client.post("/auth/register", json={
+        "email": "newdonor@example.com",
+        "password": "securepass123",
+        "role": "DONOR",
+        "display_name": "New Donor",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95112",
+        "country": "United States",
+        "weekly_meal_limit": 10
+    })
+    assert response.status_code == status.HTTP_201_CREATED
+    data = response.json()
+    assert "access_token" in data
 
 
-class TestLogin:
-    """Test user login."""
+def test_register_duplicate_email(client):
+    """Test that duplicate email registration fails"""
+    # First registration
+    client.post("/auth/register", json={
+        "email": "duplicate@test.com",
+        "password": "pass123",
+        "role": "SEEKER",
+        "display_name": "First",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95112",
+        "country": "United States"
+    })
     
-    @pytest.mark.asyncio
-    async def test_login_success(self, client: AsyncClient, test_user: User):
-        """Test successful login."""
-        response = await client.post(
-            "/api/auth/login",
-            json={
-                "email": "testuser@example.com",
-                "password": "testpassword123"
-            }
-        )
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert "access_token" in data
-        assert data["token_type"] == "bearer"
-        assert "user" in data
-        assert data["user"]["email"] == "testuser@example.com"
-    
-    @pytest.mark.asyncio
-    async def test_login_wrong_password(self, client: AsyncClient, test_user: User):
-        """Test login with wrong password fails."""
-        response = await client.post(
-            "/api/auth/login",
-            json={
-                "email": "testuser@example.com",
-                "password": "wrongpassword"
-            }
-        )
-        
-        assert response.status_code == 401
-    
-    @pytest.mark.asyncio
-    async def test_login_nonexistent_user(self, client: AsyncClient):
-        """Test login with nonexistent user fails."""
-        response = await client.post(
-            "/api/auth/login",
-            json={
-                "email": "nonexistent@example.com",
-                "password": "password123"
-            }
-        )
-        
-        assert response.status_code == 401
+    # Second registration with same email
+    response = client.post("/auth/register", json={
+        "email": "duplicate@test.com",
+        "password": "pass123",
+        "role": "SEEKER",
+        "display_name": "Second",
+        "city": "San Jose",
+        "state": "CA",
+        "zip": "95112",
+        "country": "United States"
+    })
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-class TestResendOTP:
-    """Test OTP resend functionality."""
-    
-    @pytest.mark.asyncio
-    async def test_resend_otp_success(self, client: AsyncClient, test_db: AsyncSession):
-        """Test resending OTP code."""
-        # Register user first
-        await client.post(
-            "/api/auth/register",
-            json={
-                "email": "resend@example.com",
-                "password": "password123",
-                "display_name": "Resend User",
-                "city": "Seattle",
-                "state": "WA",
-                "zip_code": "98101",
-                "country": "USA"
-            }
-        )
-        
-        # Resend OTP
-        response = await client.post(
-            "/api/auth/resend-otp",
-            json={
-                "email": "resend@example.com",
-                "code_type": "email"
-            }
-        )
-        
-        assert response.status_code == 200
-        assert "sent" in response.json()["message"].lower()
-        
-        # Verify new code was created
-        result = await test_db.execute(
-            select(User).where(User.email == "resend@example.com")
-        )
-        user = result.scalar_one()
-        
-        result = await test_db.execute(
-            select(VerificationCode)
-            .where(VerificationCode.user_id == user.id)
-            .order_by(VerificationCode.created_at.desc())
-        )
-        codes = result.scalars().all()
-        assert len(codes) >= 2  # Should have multiple codes
+def test_login_success(client, test_student_user):
+    """Test successful login"""
+    response = client.post("/auth/login", json={
+        "email": "teststudent@university.edu",
+        "password": "testpass123"
+    })
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+
+
+def test_login_wrong_password(client, test_student_user):
+    """Test login with wrong password"""
+    response = client.post("/auth/login", json={
+        "email": "teststudent@university.edu",
+        "password": "wrongpassword"
+    })
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_get_current_user(client, test_student_user):
+    """Test getting current user info"""
+    token = test_student_user["token"]
+    response = client.get(
+        "/auth/me",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert data["email"] == "teststudent@university.edu"
+    assert data["display_name"] == "Test Student"
+    assert data["role"] == "SEEKER"
+
+
+def test_get_current_user_unauthorized(client):
+    """Test getting current user without token"""
+    response = client.get("/auth/me")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+

@@ -1,214 +1,166 @@
-"""Pytest configuration and fixtures."""
+"""
+Pytest configuration and fixtures for API tests
+"""
 import pytest
-import asyncio
-from typing import AsyncGenerator, Generator
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+import os
 
-from database import Base, get_db
-from server import app
-from models import User, Donor, DonorCategory, DonorTier
-from auth import get_password_hash
+from app.database import Base, get_db
+from app.main import app
 
-# Test database URL
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/studentsupport_test"
+# Use in-memory SQLite for testing
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
-# Create test engine with proper pool settings
-test_engine = create_async_engine(
-    TEST_DATABASE_URL,
-    echo=False,
-    future=True,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
-
-# Create test session factory
-test_session_maker = async_sessionmaker(
-    test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-    autocommit=False
-)
-
-
-@pytest.fixture(scope="session")
-def event_loop() -> Generator:
-    """Create an instance of the default event loop for the test session."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="function")
-async def test_db() -> AsyncGenerator[AsyncSession, None]:
-    """Create a fresh database and session for each test."""
-    # Create tables
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    
-    # Create connection and transaction
-    async_connection = await test_engine.connect()
-    async_transaction = await async_connection.begin()
-    
-    # Create session bound to connection
-    session = AsyncSession(bind=async_connection, expire_on_commit=False)
-    
-    yield session
-    
-    # Cleanup
-    await session.close()
-    await async_transaction.rollback()
-    await async_connection.close()
-    
-    # Drop tables
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+def db():
+    """Create a fresh database for each test"""
+    Base.metadata.create_all(bind=engine)
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
-async def client(test_db: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
-    """Create a test client with database dependency override."""
-    from httpx import ASGITransport
-    
-    async def override_get_db():
-        yield test_db
+def client(db):
+    """Create a test client with database override"""
+    def override_get_db():
+        try:
+            yield db
+        finally:
+            pass
     
     app.dependency_overrides[get_db] = override_get_db
-    
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        yield ac
-    
+    with TestClient(app) as test_client:
+        yield test_client
     app.dependency_overrides.clear()
 
 
 @pytest.fixture
-async def test_user(test_db: AsyncSession) -> User:
-    """Create a test user."""
+def test_student_user(client, db):
+    """Create a test student user and return auth token"""
+    from app.models import User
+    from app.schemas import UserRole
+    import uuid
+    import bcrypt
+    
+    # Hash password using bcrypt directly
+    password_bytes = "testpass123".encode('utf-8')
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
+    
     user = User(
-        email="testuser@example.com",
-        password_hash=get_password_hash("testpassword123"),
-        display_name="Test User",
-        role="SEEKER",
-        city="San Francisco",
+        id=str(uuid.uuid4()),
+        email="teststudent@university.edu",
+        password_hash=password_hash,
+        role=UserRole.SEEKER,
+        display_name="Test Student",
+        city="San Jose",
         state="CA",
-        zip_code="94102",
-        country="USA",
+        zip="95112",
+        country="United States",
         email_verified=True,
-        verification_status="VERIFIED",
-        preferences=["Vegetarian", "Gluten Free"],
-        languages=["English", "Spanish"]
     )
-    test_db.add(user)
-    await test_db.commit()
-    await test_db.refresh(user)
-    return user
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    # Login to get token
+    response = client.post("/auth/login", json={
+        "email": "teststudent@university.edu",
+        "password": "testpass123"
+    })
+    token = response.json()["access_token"]
+    return {"user": user, "token": token}
 
 
 @pytest.fixture
-async def test_donor_user(test_db: AsyncSession) -> User:
-    """Create a test donor user."""
-    donor = User(
-        email="donor@example.com",
-        password_hash=get_password_hash("donorpassword123"),
+def test_donor_user(client, db):
+    """Create a test donor user and return auth token"""
+    from app.models import User
+    from app.schemas import UserRole
+    import uuid
+    import bcrypt
+    
+    # Hash password using bcrypt directly
+    password_bytes = "testpass123".encode('utf-8')
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
+    
+    user = User(
+        id=str(uuid.uuid4()),
+        email="testdonor@gmail.com",
+        password_hash=password_hash,
+        role=UserRole.DONOR,
         display_name="Test Donor",
-        role="DONOR",
-        city="San Francisco",
+        city="San Jose",
         state="CA",
-        zip_code="94102",
-        country="USA",
+        zip="95112",
+        country="United States",
         email_verified=True,
-        verification_status="VERIFIED",
-        languages=["English"]
+        weekly_meal_limit=5,
+        current_weekly_meals=0,
     )
-    test_db.add(donor)
-    await test_db.commit()
-    await test_db.refresh(donor)
-    return donor
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    # Login to get token
+    response = client.post("/auth/login", json={
+        "email": "testdonor@gmail.com",
+        "password": "testpass123"
+    })
+    token = response.json()["access_token"]
+    return {"user": user, "token": token}
 
 
 @pytest.fixture
-async def test_admin_user(test_db: AsyncSession) -> User:
-    """Create a test admin user."""
-    admin = User(
-        email="admin@example.com",
-        password_hash=get_password_hash("adminpassword123"),
-        display_name="Test Admin",
-        role="ADMIN",
-        city="San Francisco",
+def test_admin_user(client, db):
+    """Create a test admin user and return auth token"""
+    from app.models import User
+    from app.schemas import UserRole
+    import uuid
+    import bcrypt
+    
+    # Hash password using bcrypt directly
+    password_bytes = "adminpass123".encode('utf-8')
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password_bytes, salt).decode('utf-8')
+    
+    user = User(
+        id=str(uuid.uuid4()),
+        email="admin@test.org",
+        password_hash=password_hash,
+        role=UserRole.ADMIN,
+        display_name="Admin User",
+        city="San Jose",
         state="CA",
-        zip_code="94102",
-        country="USA",
+        zip="95112",
+        country="United States",
         email_verified=True,
-        verification_status="VERIFIED",
-        languages=["English"]
     )
-    test_db.add(admin)
-    await test_db.commit()
-    await test_db.refresh(admin)
-    return admin
-
-
-@pytest.fixture
-async def auth_headers(client: AsyncClient, test_user: User) -> dict:
-    """Get authentication headers for test user."""
-    response = await client.post(
-        "/api/auth/login",
-        json={
-            "email": "testuser@example.com",
-            "password": "testpassword123"
-        }
-    )
-    assert response.status_code == 200
-    token = response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
-
-
-@pytest.fixture
-async def donor_auth_headers(client: AsyncClient, test_donor_user: User) -> dict:
-    """Get authentication headers for donor user."""
-    response = await client.post(
-        "/api/auth/login",
-        json={
-            "email": "donor@example.com",
-            "password": "donorpassword123"
-        }
-    )
-    assert response.status_code == 200
-    token = response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
-
-
-@pytest.fixture
-async def seed_donors(test_db: AsyncSession):
-    """Seed test donors."""
-    donors = [
-        Donor(
-            id="d1",
-            name="Test Foundation",
-            category=DonorCategory.NON_PROFIT,
-            tier=DonorTier.PLATINUM,
-            total_contribution_display="$15,000+",
-            is_anonymous=False,
-            location="Chicago, IL",
-            since="2023"
-        ),
-        Donor(
-            id="d2",
-            name="Test Temple",
-            category=DonorCategory.RELIGIOUS,
-            tier=DonorTier.GOLD,
-            total_contribution_display="10,000 Meals",
-            is_anonymous=False,
-            location="Cary, NC",
-            since="2024"
-        )
-    ]
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     
-    for donor in donors:
-        test_db.add(donor)
-    
-    await test_db.commit()
-    return donors
+    # Login to get token
+    response = client.post("/auth/login", json={
+        "email": "admin@test.org",
+        "password": "adminpass123"
+    })
+    token = response.json()["access_token"]
+    return {"user": user, "token": token}
+
